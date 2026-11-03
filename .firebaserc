@@ -1,0 +1,13 @@
+{
+  "projects": { "default": "devfest-lima-2026" },
+  "targets": {
+    "devfest-lima-2026": {
+      "hosting": {
+        "slides": ["devfest-lima-slides"],
+        "genui": ["devfest-lima-nido"],
+        "agentes": ["devfest-lima-mesa"]
+      }
+    }
+  },
+  "etags": {}
+}

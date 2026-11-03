@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chrome DevTools para agentes — DevFest Lima 2026 · Día 2</title>
+    <meta name="description" content="Cómo ver lo que un agente ve, hace y piensa en tu web, simular usuarios automatizados y depurar la IA del cliente con Chrome DevTools y Chrome DevTools for agents. DevFest Lima 2026." />
+    <link rel="icon" href="/brand/logo-icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto+Mono:wght@300;400;500&display=swap" />
+    <link rel="stylesheet" href="/src/deck/deck.css" />
+    <script>
+      try {
+        const p = new URLSearchParams(location.search);
+        const t = p.get('theme') || localStorage.getItem('dflima.deck.theme');
+        if (t === 'dark') document.documentElement.dataset.theme = 'dark';
+        if (p.has('contrast') || localStorage.getItem('dflima.deck.contrast') === '1') document.documentElement.dataset.contrast = 'high';
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <deck-stage width="1280" height="720">
+      <!-- ═════════════ PORTADA ═════════════ -->
+      <section data-id="portada" data-label="Portada" class="cover">
+        <div class="skyline" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="cover-landmark" data-landmark="cover" aria-hidden="true"></div>
+        <div class="frame cover-frame">
+          <img class="badge-img" src="/brand/web-badge.svg" alt="Web @DevFest Lima" />
+          <p class="eyebrow">// Día 2 · inspeccionar · simular · depurar</p>
+          <h1 class="cover-title"><span>Chrome</span><span>DevTools</span><span><span class="hl">para agentes</span></span></h1>
+          <div class="speaker">
+            <img src="/brand/vanessa.png" alt="" />
+            <div><strong>Vanessa Aristizabal</strong><span>GDE Web &amp; Angular · GitHub Star</span></div>
+          </div>
+        </div>
+        <div class="cover-avatars" data-avatars="3" aria-hidden="true"></div>
+        <div class="cenefa bottom" aria-hidden="true"></div>
+      </section>
+
+      <!-- ═════════════ ÚNETE ═════════════ -->
+      <section data-id="unete" data-label="Únete">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Esta charla también es una app</p>
+          <h2 class="title">¿Viniste ayer? <span class="hl">Tu avatar vuelve</span></h2>
+          <div class="join-grid">
+            <div class="qr-card">
+              <div data-qr="live"></div>
+              <strong>Únete a la charla</strong>
+              <span data-live-url>…</span>
+            </div>
+            <div class="stack">
+              <div class="counters">
+                <div class="box blue"><div class="counter-big"><span data-count="players">0</span></div><small class="mono">en la sala</small></div>
+                <div class="box yellow"><div class="counter-big"><span data-count="returning">0</span></div><small class="mono">volvieron con su avatar</small></div>
+              </div>
+              <div class="box green"><h3 class="ic"><i data-lucide="repeat"></i> Tu avatar del Día 1, editable</h3><p>Cámbiale la ropa, el gorro o lo que lleva para hoy. Traerlo suma <b>+200</b>.</p></div>
+              <div class="box red"><h3 class="ic"><i data-lucide="trophy"></i> 3 preguntas, 1 podio</h3><p>Acierta rápido. Bonos: entrar ahora, publicar tu avatar, preguntar y reaccionar.</p></div>
+              <div class="box"><h3 class="ic"><i data-lucide="download"></i> Tu memoria al final</h3><p>PDF o HTML con cada slide, tus notas y tu avatar.</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <!-- ═════════════ BIO ═════════════ -->
+      <section data-id="bio" data-label="Quién soy">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Quién soy</p>
+          <div class="bio">
+            <img class="bio-photo" src="/brand/vanessa.png" alt="Vanessa Aristizabal" />
+            <div>
+              <h2>Vanessa Aristizabal</h2>
+              <p class="sub" style="margin: 0">Software Engineer</p>
+              <ul>
+                <li>Ingeniera de Sistemas y Magíster en Ingeniería</li>
+                <li>Google Developer Expert — Web Technologies &amp; Angular</li>
+                <li>GitHub Star · Creadora de contenido</li>
+              </ul>
+              <div class="socials">
+                <span class="pill"><i data-lucide="camera"></i> <b>@vanessamarelycode</b></span>
+                <span class="pill"><i data-lucide="circle-play"></i> <b>vanessamarely</b></span>
+                <span class="pill"><i data-lucide="git-branch"></i> <b>vanessamarely</b></span>
+                <span class="pill"><i data-lucide="globe"></i> <b>vanessamarely.dev</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <!-- ═════════════ DOS VISITANTES ═════════════ -->
+      <section data-id="dos-visitantes" data-label="Dos visitantes">
+        <div class="frame card-frame">
+          <p class="eyebrow">// El problema</p>
+          <h2 class="title">Tu web ahora tiene <span class="hl">dos tipos de visitantes</span></h2>
+          <div class="visitors reveal">
+            <div class="who" style="--i: 0"><h3><i data-lucide="user"></i> Personas</h3><p class="muted">Miran, leen y hacen clic. DevTools siempre te mostró lo que ven.</p></div>
+            <div class="agents">
+              <div class="box blue" style="--i: 1"><h3 class="ic"><i data-lucide="globe"></i> Agente del navegador</h3><p>"Reserva una mesa para el sábado."</p></div>
+              <div class="box green" style="--i: 2"><h3 class="ic"><i data-lucide="sparkles"></i> Tu asistente in-page</h3><p>IA en tu página (Gemini Nano).</p></div>
+              <div class="box yellow" style="--i: 3"><h3 class="ic"><i data-lucide="terminal"></i> Tu agente de código</h3><p>Prueba tu web con un Chrome real.</p></div>
+            </div>
+          </div>
+          <p class="small muted engine-note reveal"><span style="--i: 4">Ahora necesitas ver lo que un agente <b>ve</b>, <b>hace</b> y <b>piensa</b>.</span></p>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <!-- ═════════════ CÓMO VE ═════════════ -->
+      <section data-id="como-ve" data-label="¿Cómo ve?">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Los ojos de un agente</p>
+          <h2 class="title">Un agente “ve” tu página <span class="hl">de cuatro formas</span></h2>
+          <div class="lenses reveal">
+            <div class="lens" style="--i: 0"><span class="ico"><i data-lucide="image"></i></span><h3>Captura</h3><p>Píxeles: adivina dónde está cada botón.</p><span class="cost">caro · frágil</span></div>
+            <div class="lens" style="--i: 1"><span class="ico"><i data-lucide="code"></i></span><h3>DOM</h3><p>Todo el HTML: miles de tokens de ruido.</p><span class="cost">caro · ruidoso</span></div>
+            <div class="lens best" style="--i: 2"><span class="ico"><i data-lucide="accessibility"></i></span><h3>Árbol de accesibilidad</h3><p>Rol, nombre y estado de cada control.</p><span class="cost">el mapa más usado</span></div>
+            <div class="lens" style="--i: 3"><span class="ico"><i data-lucide="wrench"></i></span><h3>Tools de WebMCP</h3><p>Funciones con nombre y JSON Schema que tu página publica.</p><span class="cost">intención directa</span></div>
+          </div>
+          <div class="scale-arrow"><span>más ruido</span><i></i><span>más intención</span></div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <!-- ═════════════ DEVTOOLS FOR AGENTS ═════════════ -->
+      <section data-id="devtools-agentes" data-label="DevTools for agents">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Chrome DevTools for agents · chrome-devtools-mcp</p>
+          <h2 class="title">Tu agente de código <span class="hl">controla un Chrome real</span></h2>
+          <div class="code-grid">
+            <div class="code sm" data-code="mcp" data-focus='[["1-9","Servidor MCP: lo agregas a tu agente de código"],["7","--categoryExperimentalWebmcp: también ve tus tools"],["11-15","O la CLI: los mismos comandos desde la terminal"]]'><div class="bar"><span>.mcp.json · terminal</span><span>MCP · CLI</span></div><pre></pre></div>
+            <div class="stack side-notes reveal">
+              <div class="box blue" style="--i: 0"><h3 class="ic"><i data-lucide="mouse-pointer-click"></i> Actúa</h3><p>navigate_page · click · fill_form · press_key · wait_for</p></div>
+              <div class="box green" style="--i: 1"><h3 class="ic"><i data-lucide="scan-eye"></i> Observa</h3><p>take_snapshot · take_screenshot · list_console_messages · list_network_requests</p></div>
+              <div class="box yellow" style="--i: 2"><h3 class="ic"><i data-lucide="gauge"></i> Mide</h3><p>emulate · performance_start_trace · lighthouse_audit</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <!-- ═════════════ 4 PREGUNTAS ═════════════ -->
+      <section data-id="cuatro-preguntas" data-label="Las 4 preguntas">
+        <div class="frame card-frame">
+          <p class="eyebrow">// El mapa de la charla</p>
+          <h2 class="title">4 preguntas para <span class="hl">depurar a un agente</span></h2>
+          <div class="road four">
+            <div class="road-line" aria-hidden="true"></div>
+            <div class="road-runner" data-runner="0" aria-hidden="true"></div>
+            <div class="postas four reveal">
+              <div class="posta" style="--i: 0"><span class="n">1</span><span class="lbl">inspeccionar</span><b>¿Qué ve?</b><small>árbol de accesibilidad · take_snapshot</small></div>
+              <div class="posta" style="--i: 1"><span class="n">2</span><span class="lbl">interacciones</span><b>¿Qué hizo?</b><small>panel WebMCP · errores útiles</small></div>
+              <div class="posta" style="--i: 2"><span class="n">3</span><span class="lbl">simular</span><b>¿Y si va más rápido?</b><small>tu agente como usuario · emulación</small></div>
+              <div class="posta" style="--i: 3"><span class="n">4</span><span class="lbl">IA del cliente</span><b>¿Qué piensa?</b><small>streaming · abort · pista propia</small></div>
+            </div>
+          </div>
+          <p class="small muted road-note">Cada pregunta: su herramienta en DevTools y un bug en la demo.</p>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <!-- ═════════════ DEMO MESA ═════════════ -->
+      <section data-id="demo-mesa" data-label="Demo · Mesa" class="clip-slide">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Demo · Mesa · restaurantes y precios ficticios</p>
+          <h2 class="title">Mesa: reservas <span class="hl">en Lima</span></h2>
+          <div class="clip-grid">
+            <figure class="clip"><video muted loop playsinline preload="none" data-src="/clips/agentes/intro.webm" poster="/clips/agentes/intro.png"></video></figure>
+            <div class="clip-side reveal">
+              <div class="qr-card sm" style="--i: 0"><div data-qr="demo"></div><strong>Ábrela en tu laptop</strong><span data-demo-url>…</span></div>
+              <ul class="clip-points" style="--i: 1"><li>“Mesa para 4, sábado 20:00, nikkei en Barranco”</li><li>Panel del agente: lo que <b>ve</b>, <b>hace</b> y <b>piensa</b></li></ul>
+            </div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <!-- ═════════════ 01 ¿QUÉ VE? ═════════════ -->
+      <section data-id="sec-ve" data-label="01 ¿Qué ve?" class="section-slide" data-early-end>
+        <div class="frame">
+          <p class="sec-num">01</p>
+          <h2 class="sec-title">¿Qué <span class="hl">ve</span> el agente?</h2>
+          <p class="lead">Inspeccionar · árbol de accesibilidad</p>
+        </div>
+        <div class="section-art sec-blue">
+          <div class="landmark" data-landmark="balcones"></div>
+          <div class="paseo" aria-hidden="true"></div>
+          <div class="runner">
+            <p class="bubble">Los balcones de Lima tienen celosías: ves hacia afuera, pero no todo hacia adentro. Así ve un agente un div.</p>
+            <div class="runner-art" data-runner="1" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="olas" aria-hidden="true"><i></i><i></i><i></i></div>
+      </section>
+
+      <section data-id="ve-arbol" data-label="El árbol">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Elements → Accessibility · o take_snapshot</p>
+          <h2 class="title">Lo que tú ves <span class="hl">vs. lo que ve el agente</span></h2>
+          <div class="sees reveal">
+            <div class="panel" style="--i: 0">
+              <h3><i data-lucide="user"></i> Tú ves</h3>
+              <div class="fake-ui"><div class="row"><span class="chip">Sáb 14</span><span class="chip">20:00</span><span class="chip">4 personas</span></div><div class="row"><span class="pink" aria-hidden="true">✓</span><span class="muted">un botón rosado</span></div></div>
+            </div>
+            <span class="eye" aria-hidden="true">→</span>
+            <div class="panel" style="--i: 1">
+              <h3><i data-lucide="bot"></i> El agente ve</h3>
+              <pre class="tree">uid=4_12 combobox "Fecha" value="Sáb 14"
+uid=4_13 combobox "Hora" value="20:00"
+uid=4_14 spinbutton "Personas" value="4"
+<span class="bad">uid=4_17 generic</span>                 ← ¿se puede tocar?
+<span class="good">uid=4_17 button "Reservar mesa"</span>   ← con el arreglo</pre>
+            </div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <section data-id="ve-codigo" data-label="Rol, nombre, estado">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Regla: rol · nombre · estado</p>
+          <h2 class="title">Rol, nombre <span class="hl">y estado</span></h2>
+          <div class="code-grid">
+            <div class="code sm" data-code="boton" data-focus='[["1-4","Un div con ícono: para el agente es generic"],["6-9","button + texto visible + disabled"],["11-13","Lo que imprime take_snapshot, antes y después"]]'><div class="bar"><span>demo-agentes/src/ui/reserva.ts</span><span>HTML</span></div><pre></pre></div>
+            <div class="stack side-notes">
+              <div class="box green"><h3>Gratis con lo nativo</h3><p>button trae rol, foco, Enter y Espacio.</p></div>
+              <div class="box blue"><h3>Sirve a todos</h3><p>Lo que ayuda a un lector de pantalla, ayuda a un agente.</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <section data-id="clip-ve" data-label="Demo · Lo que ve" class="clip-slide">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Demo · bug 1 prendido vs. arreglado</p>
+          <h2 class="title">El agente <span class="hl">no encuentra el botón</span></h2>
+          <div class="clip-grid">
+            <figure class="clip"><video muted loop playsinline preload="none" data-src="/clips/agentes/ve.webm" poster="/clips/agentes/ve.png"></video></figure>
+            <div class="clip-side reveal">
+              <div class="stats" style="--i: 0"><div class="stat bad"><b data-metric="ve.off">—</b><span>con el div</span></div><div class="stat good"><b data-metric="ve.on">—</b><span>con button</span></div></div>
+              <ul class="clip-points" style="--i: 1"><li>Panel “Lo que ve”: el árbol que recibe el agente</li><li>generic → button "Reservar mesa"</li><li>Mismo pedido, mismo agente</li></ul>
+            </div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <section data-id="q1" data-label="Pregunta 1" data-q="q1" class="poll-slide">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Pregunta 1 de 3 · ¿Qué ve el agente? · responde en tu celular</p>
+          <h2 class="title poll-q" data-q-text="q1"></h2>
+          <div class="poll" data-poll="q1"></div>
+          <div class="poll-foot"><span class="pill"><i data-lucide="users"></i> <b data-total>0</b> respuestas</span><p class="explain" data-explain hidden></p><button class="btn-reveal" type="button" data-reveal hidden>Revelar <kbd>V</kbd></button></div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <!-- ═════════════ 02 ¿QUÉ HIZO? ═════════════ -->
+      <section data-id="sec-hizo" data-label="02 ¿Qué hizo?" class="section-slide">
+        <div class="frame">
+          <p class="sec-num">02</p>
+          <h2 class="sec-title">¿Qué <span class="hl">hizo</span> el agente?</h2>
+          <p class="lead">Inspeccionar interacciones · panel WebMCP</p>
+        </div>
+        <div class="section-art sec-yellow">
+          <div class="landmark" data-landmark="huaca"></div>
+          <div class="paseo" aria-hidden="true"></div>
+          <div class="runner">
+            <p class="bubble">En la Huaca, cada capa cuenta lo que pasó. En DevTools, cada llamada deja su huella.</p>
+            <div class="runner-art" data-runner="2" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="olas" aria-hidden="true"><i></i><i></i><i></i></div>
+      </section>
+
+      <section data-id="hizo-webmcp" data-label="Panel WebMCP">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Chrome DevTools · Application → WebMCP · flag #enable-webmcp-testing</p>
+          <h2 class="title">Qué tools vio <span class="hl">y cuáles llamó</span></h2>
+          <div class="dt-wrap">
+            <div class="devtools" aria-label="Recreación del panel WebMCP de Chrome DevTools con las tools de la demo Mesa">
+              <aside class="dt-side"><p>Application</p><span>Manifest</span><span>Service workers</span><span>Storage</span><span class="on">WebMCP</span></aside>
+              <div class="dt-main">
+                <div class="dt-bar"><span class="dt-filter">Filter</span><span>Tool types ▾</span><span>Status types ▾</span></div>
+                <p class="dt-h">Invoked tools</p>
+                <ol class="dt-log reveal"><li style="--i: 0"><span class="dt-st completed">Completed</span><code>buscar_restaurantes</code><span class="dt-io">{ "distrito": "Barranco", "cocina": "nikkei" }</span><span class="dt-io out">{"total":2,…}</span></li><li style="--i: 1"><span class="dt-st completed">Completed</span><code>ver_horarios</code><span class="dt-io">{ "id": "kaiyo", "fecha": "2026-11-14", "personas": 4 }</span><span class="dt-io out">["19:30","21:00"]</span></li><li style="--i: 2"><span class="dt-st error">Error</span><code>reservar_mesa</code><span class="dt-io">{ "hora": "20:00", … }</span><span class="dt-io out">Error: 20:00 no está libre. Horas libres: 19:30, 21:00, 21:30</span></li><li style="--i: 3"><span class="dt-st completed">Completed</span><code>reservar_mesa</code><span class="dt-io">{ "hora": "19:30", … }</span><span class="dt-io out">Reserva MSA-4821 confirmada (la persona confirmó)</span></li></ol>
+                <p class="dt-h">Available tools <small>4</small></p>
+                <ul class="dt-tools"><li><code>buscar_restaurantes</code><span class="dt-type">Declarative</span><span class="dt-count">1</span></li><li><code>ver_horarios</code><span class="dt-type">Imperative</span><span class="dt-count">1</span></li><li><code>reservar_mesa</code><span class="dt-type">Imperative</span><span class="dt-count">2</span></li><li><code>cancelar_reserva</code><span class="dt-type">Imperative</span><span class="dt-count">0</span></li></ul>
+                <div class="dt-run"><code>reservar_mesa</code><span>{ "hora": "19:30", … }</span><button type="button" tabindex="-1">Run tool</button></div>
+                <p class="dt-note">Recreación con las tools de la demo · ábrelo en vivo: Chrome + flag, Application → WebMCP</p>
+              </div>
+            </div>
+            <div class="stack side-notes reveal">
+              <div class="box blue" style="--i: 4"><h3 class="ic"><i data-lucide="list"></i> Available tools</h3><p>Lo que el agente puede usar y cuántas veces lo llamó.</p></div>
+              <div class="box green" style="--i: 5"><h3 class="ic"><i data-lucide="activity"></i> Invoked tools</h3><p>Estado, entrada y salida de cada llamada.</p></div>
+              <div class="box yellow" style="--i: 6"><h3 class="ic"><i data-lucide="play"></i> Run tool</h3><p>Pruébala a mano, sin agente. Tu agente de código: <code>list_webmcp_tools</code> y <code>execute_webmcp_tool</code>.</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <section data-id="hizo-errores" data-label="Errores que enseñan">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Errores para máquinas (y personas)</p>
+          <h2 class="title">Errores que <span class="hl">el agente entiende</span></h2>
+          <div class="code-grid">
+            <div class="code sm" data-code="tool" data-focus='[["1-3","Una tool por intención, con descripción clara"],["4-6","Schema con formato y ejemplo"],["7","consequentialHint: lo irreversible lo confirma la persona"],["9-13","El error dice qué hacer: las horas libres"]]'><div class="bar"><span>demo-agentes/src/tools.ts</span><span>WebMCP</span></div><pre></pre></div>
+            <div class="stack side-notes">
+              <div class="box red"><h3>“Error”</h3><p>El agente reintenta lo mismo… o se rinde.</p></div>
+              <div class="box green"><h3>“Horas libres: 19:30, 21:00”</h3><p>El agente se corrige solo.</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <section data-id="clip-hizo" data-label="Demo · Tools" class="clip-slide">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Demo · bug 2 prendido vs. arreglado</p>
+          <h2 class="title">De “Error” <span class="hl">a un error útil</span></h2>
+          <div class="clip-grid">
+            <figure class="clip"><video muted loop playsinline preload="none" data-src="/clips/agentes/tools.webm" poster="/clips/agentes/tools.png"></video></figure>
+            <div class="clip-side reveal">
+              <div class="stats" style="--i: 0"><div class="stat bad"><b data-metric="tools.off">—</b><span>error opaco</span></div><div class="stat good"><b data-metric="tools.on">—</b><span>error útil</span></div></div>
+              <ul class="clip-points" style="--i: 1"><li>Panel de tools como en DevTools</li><li>El agente lee las horas libres y elige 19:30</li><li>La persona confirma antes de reservar</li></ul>
+            </div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <!-- ═════════════ 03 SIMULAR ═════════════ -->
+      <section data-id="sec-simular" data-label="03 Simular" class="section-slide">
+        <div class="frame">
+          <p class="sec-num">03</p>
+          <h2 class="sec-title">Simula al usuario <span class="hl">automatizado</span></h2>
+          <p class="lead">Tu agente de código como usuario · emulación</p>
+        </div>
+        <div class="section-art sec-red">
+          <div class="landmark" data-landmark="costa"></div>
+          <div class="paseo" aria-hidden="true"></div>
+          <div class="runner">
+            <p class="bubble">Un agente baja más rápido que un parapente: hace clic antes de que la página esté lista.</p>
+            <div class="runner-art" data-runner="3" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="olas" aria-hidden="true"><i></i><i></i><i></i></div>
+      </section>
+
+      <section data-id="simular-bucle" data-label="Tu agente prueba">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Chrome DevTools for agents · el bucle</p>
+          <h2 class="title">Tu agente de código <span class="hl">como usuario automatizado</span></h2>
+          <div class="loop reveal">
+            <div class="st" style="--i: 0"><b>Navega</b><code>navigate_page</code></div>
+            <div class="st" style="--i: 1"><b>Mira</b><code>take_snapshot</code></div>
+            <div class="st" style="--i: 2"><b>Actúa</b><code>fill_form · click</code></div>
+            <div class="st" style="--i: 3"><b>Espera</b><code>wait_for</code></div>
+            <div class="st" style="--i: 4"><b>Revisa</b><code>list_console_messages · list_network_requests</code></div>
+            <div class="st" style="--i: 5"><b>Mide</b><code>performance_start_trace · lighthouse_audit</code></div>
+          </div>
+          <div class="emus reveal">
+            <span class="pill blue" style="--i: 6"><i data-lucide="cpu"></i> emulate: CPU 4×</span>
+            <span class="pill green" style="--i: 7"><i data-lucide="wifi"></i> red lenta</span>
+            <span class="pill yellow" style="--i: 8"><i data-lucide="smartphone"></i> pantalla de celular</span>
+            <span class="pill red" style="--i: 9"><i data-lucide="shield-check"></i> Lighthouse · Agentic Browsing</span>
+          </div>
+          <p class="prompt-chip reveal" style="margin-top: 14px"><i data-lucide="message-square-text"></i> <span style="--i: 10">“Abre Mesa con CPU 4× y red lenta, reserva para 4 el sábado a las 20:00 y dime qué falló y por qué.”</span></p>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <section data-id="simular-carrera" data-label="La carrera">
+        <div class="frame card-frame">
+          <p class="eyebrow">// El bug que solo aparece con agentes</p>
+          <h2 class="title">Hace clic <span class="hl">antes de que esté lista</span></h2>
+          <div class="code-grid">
+            <div class="code sm" data-code="listo" data-focus='[["1-2","Una persona espera; un agente no"],["6-7","Estado real: disabled + aria-busy"],["9-10","Carga lo necesario"],["12-13","Recién ahora se puede usar"]]'><div class="bar"><span>demo-agentes/src/ui/reserva.ts</span><span>TS</span></div><pre></pre></div>
+            <div class="stack side-notes">
+              <div class="box red"><h3>El gris no es un estado</h3><p>Un botón “gris” con CSS sigue siendo clicable.</p></div>
+              <div class="box green"><h3>disabled sí</h3><p>El agente lo ve en el árbol y espera.</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <section data-id="clip-simular" data-label="Demo · Carrera" class="clip-slide">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Demo · bug 3 prendido vs. arreglado</p>
+          <h2 class="title">Red lenta <span class="hl">+ agente rápido</span></h2>
+          <div class="clip-grid">
+            <figure class="clip"><video muted loop playsinline preload="none" data-src="/clips/agentes/carrera.webm" poster="/clips/agentes/carrera.png"></video></figure>
+            <div class="clip-side reveal">
+              <div class="stats" style="--i: 0"><div class="stat bad"><b data-metric="carrera.off">—</b><span>reserva sin hora</span></div><div class="stat good"><b data-metric="carrera.on">—</b><span>espera y reserva</span></div></div>
+              <ul class="clip-points" style="--i: 1"><li>Red lenta simulada en la demo</li><li>Línea de tiempo del agente: clic a los pocos ms</li><li>Con aria-busy y disabled: espera los horarios</li></ul>
+            </div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <section data-id="q2" data-label="Pregunta 2" data-q="q2" class="poll-slide">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Pregunta 2 de 3 · DevTools for agents · responde en tu celular</p>
+          <h2 class="title poll-q" data-q-text="q2"></h2>
+          <div class="poll" data-poll="q2"></div>
+          <div class="poll-foot"><span class="pill"><i data-lucide="users"></i> <b data-total>0</b> respuestas</span><p class="explain" data-explain hidden></p><button class="btn-reveal" type="button" data-reveal hidden>Revelar <kbd>V</kbd></button></div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <!-- ═════════════ 04 IA DEL CLIENTE ═════════════ -->
+      <section data-id="sec-ia" data-label="04 IA del cliente" class="section-slide">
+        <div class="frame">
+          <p class="sec-num">04</p>
+          <h2 class="sec-title">Depura la <span class="hl">IA del cliente</span></h2>
+          <p class="lead">Rutinas de IA en el navegador, en tiempo real</p>
+        </div>
+        <div class="section-art sec-green">
+          <div class="landmark" data-landmark="puente"></div>
+          <div class="paseo" aria-hidden="true"></div>
+          <div class="runner">
+            <p class="bubble">Si cambias de idea a mitad del Puente de los Suspiros, nadie debería contestarte lo de antes.</p>
+            <div class="runner-art" data-runner="4" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="olas" aria-hidden="true"><i></i><i></i><i></i></div>
+      </section>
+
+      <section data-id="ia-rutinas" data-label="3 problemas">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Prompt API (Gemini Nano) · u otro modelo en el cliente</p>
+          <h2 class="title">Tres bugs típicos de <span class="hl">la IA en el navegador</span></h2>
+          <div class="bugs3 reveal">
+            <div class="bug" style="--i: 0"><h3><i data-lucide="snowflake"></i> Congela</h3><p>Esperas la respuesta completa y la página no responde.</p><span class="fix"><b>Arreglo:</b> promptStreaming</span></div>
+            <div class="bug" style="--i: 1"><h3><i data-lucide="history"></i> Responde lo viejo</h3><p>La persona cambió la pregunta y llega la respuesta anterior.</p><span class="fix"><b>Arreglo:</b> AbortController</span></div>
+            <div class="bug" style="--i: 2"><h3><i data-lucide="eye-off"></i> Invisible</h3><p>Nadie sabe cuánto tarda: no aparece en ninguna herramienta.</p><span class="fix"><b>Arreglo:</b> pista propia en Performance</span></div>
+          </div>
+          <p class="small muted engine-note reveal"><span style="--i: 3"><code>chrome://on-device-internals</code> para ver el modelo · consola · Performance</span></p>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <section data-id="ia-codigo" data-label="Streaming + abort">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Los tres arreglos juntos</p>
+          <h2 class="title">Streaming, abort <span class="hl">y una pista propia</span></h2>
+          <div class="code-grid">
+            <div class="code sm" data-code="ia" data-focus='[["1-5","abort(): la pregunta vieja ya no importa"],["6-9","promptStreaming: pinta mientras piensa"],["10-14","performance.measure: tu IA aparece en Performance"]]'><div class="bar"><span>demo-agentes/src/ia.ts</span><span>TS</span></div><pre></pre></div>
+            <div class="stack side-notes">
+              <div class="box blue"><h3>Mesa · IA local</h3><p>Una pista con nombre en el panel Performance.</p></div>
+              <div class="box green"><h3>Sin Nano</h3><p>La demo usa un modo simulado con los mismos tiempos.</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <section data-id="clip-ia" data-label="Demo · IA local" class="clip-slide">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Demo · bug 4 prendido vs. arreglado</p>
+          <h2 class="title">La recomendación <span class="hl">que congelaba la página</span></h2>
+          <div class="clip-grid">
+            <figure class="clip"><video muted loop playsinline preload="none" data-src="/clips/agentes/ia.webm" poster="/clips/agentes/ia.png"></video></figure>
+            <div class="clip-side reveal">
+              <div class="stats" style="--i: 0"><div class="stat bad"><b data-metric="ia.off">—</b><span>frame más lento</span></div><div class="stat good"><b data-metric="ia.on">—</b><span>frame más lento</span></div></div>
+              <ul class="clip-points" style="--i: 1"><li>“¿Qué pido?” y luego otra pregunta</li><li>Medidor de fluidez de la página</li><li>Con abort: solo responde a la última</li></ul>
+            </div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <!-- ═════════════ DEMO EN VIVO ═════════════ -->
+      <section data-id="demo-vivo" data-label="Demo en vivo">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Demo en vivo · DevTools de verdad</p>
+          <h2 class="title">Depura Mesa <span class="hl">con DevTools</span></h2>
+          <div class="demo-grid">
+            <div>
+              <ol class="demo-steps reveal">
+                <li style="--i: 0"><span class="dn blue">1</span><b>Elements → Accessibility</b> · el botón</li>
+                <li style="--i: 1"><span class="dn yellow">2</span><b>Application → WebMCP</b> · Run tool</li>
+                <li style="--i: 2"><span class="dn red">3</span><b>Tu agente + DevTools for agents</b> · CPU 4×</li>
+                <li style="--i: 3"><span class="dn green">4</span><b>Performance</b> · pista “Mesa · IA local”</li>
+              </ol>
+            </div>
+            <div class="qr-card">
+              <div data-qr="demo"></div>
+              <strong>Repítela en tu laptop</strong>
+              <span data-demo-url>…</span>
+            </div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <!-- ═════════════ FÁCIL DE RAZONAR ═════════════ -->
+      <section data-id="razonar" data-label="Fácil de razonar">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Lighthouse → Agentic Browsing (experimental) lo revisa por ti</p>
+          <h2 class="title">Una web <span class="hl">fácil de razonar</span> para agentes</h2>
+          <div class="terraces reveal">
+            <div class="terrace t3" style="--i: 2"><span class="lvl">3</span><div><h3><i data-lucide="shield-check"></i> Estable y confiable</h3><p>Sin saltos ni carreras · lo irreversible se confirma · IA local con streaming y abort.</p></div></div>
+            <div class="terrace t2" style="--i: 1"><span class="lvl">2</span><div><h3><i data-lucide="wrench"></i> Accionable</h3><p>Tools de WebMCP por intención · errores que enseñan.</p></div></div>
+            <div class="terrace t1" style="--i: 0"><span class="lvl">1</span><div><h3><i data-lucide="accessibility"></i> Legible</h3><p>HTML nativo · nombres · estados (disabled, aria-busy).</p></div></div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <section data-id="q3" data-label="Pregunta 3" data-q="q3" class="poll-slide">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Pregunta 3 de 3 · IA del cliente · responde en tu celular</p>
+          <h2 class="title poll-q" data-q-text="q3"></h2>
+          <div class="poll" data-poll="q3"></div>
+          <div class="poll-foot"><span class="pill"><i data-lucide="users"></i> <b data-total>0</b> respuestas</span><p class="explain" data-explain hidden></p><button class="btn-reveal" type="button" data-reveal hidden>Revelar <kbd>V</kbd></button></div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <!-- ═════════════ MURO ═════════════ -->
+      <section data-id="muro" data-label="Muro de avatares">
+        <div class="frame card-frame wall-frame">
+          <p class="eyebrow">// <span data-count="avatars">0</span> avatares · <span data-count="returning">0</span> vinieron los dos días</p>
+          <h2 class="title">El muro de <span class="hl">avatares</span></h2>
+          <div class="mensaje-top" data-mensaje-top></div>
+          <div class="wall-stage">
+            <aside class="spotlight" data-spotlight hidden></aside>
+            <div class="avatar-wall" data-avatar-wall></div>
+          </div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <!-- ═════════════ CHECKLIST ═════════════ -->
+      <section data-id="checklist" data-label="Para llevar">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Para llevar · también en tu memoria y en la guía del repo</p>
+          <h2 class="title">10 reglas para una web que <span class="hl">los agentes entienden</span></h2>
+          <ol class="checklist" data-checklist></ol>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <!-- ═════════════ PODIO ═════════════ -->
+      <section data-id="podio" data-label="Podio">
+        <div class="frame card-frame">
+          <p class="eyebrow">// Aciertos + rapidez · bonos: avatar de ayer +200 · a tiempo +100 · avatar +100 · pregunta +100 · reacciones hasta +100</p>
+          <h2 class="title">El <span class="hl">podio</span></h2>
+          <div class="podium" data-podium></div>
+          <div class="podium-rest" data-rest></div>
+        </div>
+        <div class="notch"><img src="/brand/logo-gdg-stacked.svg" alt="Google Developer Groups" /></div>
+      </section>
+
+      <!-- ═════════════ GRACIAS ═════════════ -->
+      <section data-id="gracias" data-label="Gracias" class="cover thanks">
+        <div class="skyline" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="cover-landmark" data-landmark="cover" aria-hidden="true"></div>
+        <div class="frame cover-frame">
+          <p class="eyebrow">// Gracias por estos dos días</p>
+          <h1 class="cover-title sm"><span>¡Gracias,</span><span><span class="hl">Lima!</span></span></h1>
+          <div class="thanks-grid">
+            <div class="qr-card sm"><div data-qr="repo"></div><strong>Repositorio</strong><span>código, demos y recursos</span></div>
+            <div class="qr-card sm"><div data-qr="slides"></div><strong>Slides</strong><span data-slides-url>…</span></div>
+          </div>
+        </div>
+        <div class="cover-avatars" data-avatars="3" aria-hidden="true"></div>
+        <div class="cenefa bottom" aria-hidden="true"></div>
+      </section>
+    </deck-stage>
+
+    <div class="reactions" aria-hidden="true"></div>
+    <span class="presenter-badge" hidden>EN VIVO</span>
+    <div class="deck-menu">
+      <button class="deck-menu-btn" type="button" aria-expanded="false" aria-controls="deck-menu-panel" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+      <div class="deck-menu-panel" id="deck-menu-panel" hidden></div>
+    </div>
+
+    <script src="/deck-stage.js"></script>
+    <script type="module" src="/src/deck/main.ts"></script>
+  </body>
+</html>

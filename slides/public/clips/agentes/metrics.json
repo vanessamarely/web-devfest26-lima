@@ -1,0 +1,10 @@
+{
+  "ve.off": "✗ no lo encuentra",
+  "ve.on": "✓ 1er intento",
+  "tools.off": "✗ se rinde",
+  "tools.on": "✓ 19:30",
+  "carrera.off": "✗ sin hora",
+  "carrera.on": "✓ espera",
+  "ia.off": "1,817 ms",
+  "ia.on": "17 ms"
+}

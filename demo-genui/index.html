@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nido · Encuentra tu depa en Lima con IA</title>
+    <meta name="description" content="Nido: buscador de depas en Lima con IA. Demo de la charla Web performance en la era de la UI generativa (DevFest Lima 2026). Depas y precios ficticios." />
+    <link rel="icon" href="/favicon.svg" />
+  </head>
+  <body>
+    <header class="top">
+      <a class="logo" href="./" aria-label="Nido, inicio"><svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M4 16 16 5l12 11v11H4z" fill="#0f766e"/><path d="M9 22c3-4 11-4 14 0" fill="none" stroke="#fde68a" stroke-width="3" stroke-linecap="round"/><circle cx="16" cy="17" r="3" fill="#fde68a"/></svg><b>nido</b></a>
+      <nav class="nav" aria-label="Principal"><a href="#" aria-current="page">Alquilar</a><a href="#">Comprar</a><a href="#">Guardados</a></nav>
+      <button class="rayos-btn" type="button" data-rayos-btn aria-label="Abrir rayos X (tecla X)">◎ Rayos X</button>
+    </header>
+    <main>
+      <section class="hero">
+        <h1>Dinos cómo es tu depa ideal.</h1>
+        <p class="sub">Nido busca entre miles de avisos y arma la página para ti.</p>
+        <form class="ask" role="search">
+          <span class="ia" aria-hidden="true">✦</span>
+          <label class="sr" for="pedido">Describe el depa que buscas</label>
+          <input id="pedido" name="pedido" autocomplete="off" />
+          <button type="submit">Buscar con IA</button>
+        </form>
+        <p class="legal">Depas, precios y direcciones ficticios · demo de DevFest Lima 2026</p>
+        <div class="sugeridos"><button type="button" data-sugerido>2 dormitorios en Miraflores cerca al malecón</button><button type="button" data-sugerido>Estudio en Barranco hasta S/ 2.000</button><button type="button" data-sugerido>3 dorms en Chorrillos con vista al mar</button></div>
+      </section>
+      <div class="toolbar" hidden>
+        <p class="estado" data-estado role="status"></p>
+        <div class="tb-actions">
+          <button type="button" class="tb-btn" data-precios>↻ Actualizar precios</button>
+          <button type="button" class="tb-btn primary" data-ordenar>Ordenar: precio/m² + mar</button>
+        </div>
+      </div>
+      <div id="resultados" class="resultados" aria-live="polite"></div>
+    </main>
+    <aside class="rayos" hidden aria-label="Rayos X: laboratorio de performance"></aside>
+    <div class="mini" data-mini aria-hidden="true"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

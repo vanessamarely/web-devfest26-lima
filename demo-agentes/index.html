@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mesa · Reserva en los mejores restaurantes de Lima</title>
+    <meta name="description" content="Mesa: reservas de restaurantes en Lima. Demo de la charla Chrome DevTools para agentes (DevFest Lima 2026). Restaurantes y precios ficticios." />
+    <link rel="icon" href="/favicon.svg" />
+  </head>
+  <body>
+    <header class="top">
+      <a class="logo" href="./"><svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#e85d3f"/><circle cx="16" cy="17" r="8" fill="#fff8f1"/></svg><b>mesa</b></a>
+      <form class="buscar" role="search" data-buscar toolname="buscar_restaurantes" tooldescription="Busca restaurantes en Lima por distrito y tipo de cocina" toolautosubmit>
+        <label>Distrito <select name="distrito" toolparamdescription="Distrito de Lima"><option value="">Todos</option><option>Barranco</option><option>Miraflores</option><option>San Isidro</option><option>Surquillo</option></select></label>
+        <label>Cocina <select name="cocina" toolparamdescription="Tipo de cocina"><option value="">Todas</option><option>nikkei</option><option>cevichería</option><option>criolla</option><option>chifa</option><option>anticuchería</option></select></label>
+        <button type="submit">Buscar</button>
+      </form>
+      <span class="webmcp" data-webmcp>WebMCP</span>
+      <button class="panel-btn" type="button" data-panel-btn>Panel del agente</button>
+    </header>
+    <main class="app">
+      <nav class="lista" aria-label="Restaurantes"><ul data-lista></ul></nav>
+      <article class="detalle" data-detalle></article>
+    </main>
+    <aside class="agente" data-agent-ui aria-label="Panel del agente"></aside>
+    <dialog class="confirmar" data-confirmar aria-labelledby="c-t">
+      <h2 id="c-t">¿Confirmas la reserva?</h2>
+      <p data-c-texto></p>
+      <p class="fine">Un agente la pidió por ti. Nada irreversible sin tu confirmación.</p>
+      <div class="row"><button type="button" data-c-no>Cancelar</button><button type="button" class="pri" data-c-ok>Confirmar</button></div>
+    </dialog>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
