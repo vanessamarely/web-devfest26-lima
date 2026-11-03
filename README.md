@@ -7,6 +7,20 @@ Charlas técnicas de [Vanessa Aristizabal](https://github.com/vanessamarely) en 
 | **Día 1** | **Web performance en la era de la UI generativa** — 4 reglas para que una interfaz que escribe una IA sea rápida, estable y no congele la página. | **Nido**: buscador de depas con IA y panel **Rayos X** |
 | **Día 2** | **Chrome DevTools para agentes** — ver lo que un agente ve, hace y piensa en tu web, y depurarlo. | **Mesa**: reservas de restaurantes con **Panel del agente** |
 
+## En vivo
+
+| Qué | URL |
+|---|---|
+| Portada (elige la charla) | https://devfest-lima-slides.web.app |
+| Deck Día 1 (proyector) | https://devfest-lima-slides.web.app/genui/?presenter=1 |
+| Deck Día 2 (proyector) | https://devfest-lima-slides.web.app/agentes/?presenter=1 |
+| App de asistentes (QR) | https://devfest-lima-slides.web.app/live/?talk=genui · `?talk=agentes` |
+| Consola de la presentadora | https://devfest-lima-slides.web.app/presenter/?talk=genui · `?talk=agentes` |
+| Demo Nido · comparador | https://devfest-lima-nido.web.app · https://devfest-lima-nido.web.app/compare |
+| Demo Mesa | https://devfest-lima-mesa.web.app |
+
+Proyecto Firebase: `devfest-lima-2026` (Hosting ×3 + Firestore con [reglas](firestore.rules)).
+
 ## Cómo está armada cada charla (para no perderse)
 
 Una sola metáfora y **4 capítulos**. Cada capítulo tiene el mismo ritmo: *lo que siente la persona → por qué pasa (un diagrama) → el arreglo (código corto) → la prueba en la demo (clip con números reales)*.
@@ -80,9 +94,15 @@ Las respuestas del podio viven en `slides/answers.json` (no versionado; formato 
 
 ## Publicar (Firebase)
 
-Proyecto sugerido `devfest-lima-2026` con tres sitios: `devfest-lima-slides`, `devfest-lima-nido`, `devfest-lima-mesa` (ver `.firebaserc`). Copia `.env.example` a `slides/.env.local` con la config web de Firebase y las URLs publicadas, luego `npm run deploy`.
+Ya está creado y publicado: proyecto `devfest-lima-2026` con los sitios `devfest-lima-slides`, `devfest-lima-nido` y `devfest-lima-mesa`, la app web, Firestore y sus reglas. `slides/.env.local` (no versionado) tiene la config web; para volver a publicar: `npm run deploy`.
 
-En la consola de Firebase: **Authentication → Anónimo** (para los celulares) y **GitHub** (para presentar), y agrega los tres dominios `*.web.app` en **Authorized domains**. Sesiones en vivo: `devfest-lima-2026-genui` y `devfest-lima-2026-agentes`; para ensayar usa `?session=ensayo1` (no toca las reales).
+### Pasos en la consola (solo tú puedes hacerlos)
+Mientras no estén, los celulares funcionan en "modo local" y no se sincronizan con el deck.
+
+1. [Authentication](https://console.firebase.google.com/project/devfest-lima-2026/authentication) → **Comenzar** → *Sign-in method* → **Anónimo** → habilitar.
+2. **GitHub** (para presentar): crea una OAuth App en https://github.com/settings/developers con *Authorization callback URL* `https://devfest-lima-2026.firebaseapp.com/__/auth/handler` y pega el Client ID y el Client secret en el proveedor GitHub de Firebase.
+3. *Authentication → Settings → Authorized domains*: agrega `devfest-lima-slides.web.app`, `devfest-lima-nido.web.app` y `devfest-lima-mesa.web.app`.
+4. Prueba: abre `https://devfest-lima-slides.web.app/live/?talk=genui&session=prueba-verificacion` en el celular; debe decir **Conectado** (no "modo ensayo"). Sesiones en vivo: `devfest-lima-2026-genui` y `devfest-lima-2026-agentes`; para ensayar usa `?session=ensayo1` (no toca las reales).
 
 ### Antes de cada charla
 1. Abre el deck con `?presenter=1` → menú → **Presentar en vivo (GitHub)**.
