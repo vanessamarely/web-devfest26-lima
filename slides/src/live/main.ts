@@ -31,8 +31,19 @@ const icon = (node: IconNode, size = 20) => {
   el.setAttribute('aria-hidden', 'true');
   return el.outerHTML;
 };
+/** En ensayo local (?local) cada pestaña es una persona distinta: su propio apodo, avatar y notas. */
+const TAB = (() => {
+  if (!new URLSearchParams(location.search).has('local')) return '';
+  try {
+    let id = sessionStorage.getItem(`${NS}.uid`);
+    if (!id) sessionStorage.setItem(`${NS}.uid`, (id = 'local-' + crypto.randomUUID().slice(0, 8)));
+    return `${id}.`;
+  } catch {
+    return '';
+  }
+})();
 /** Claves por charla (notas, apodo, avatar…); el tema es común a las dos. */
-const keyOf = (k: string, talk = TALK) => (k === 'theme' ? `${NS}.live.theme` : `${NS}.live.${talk}.${k}`);
+const keyOf = (k: string, talk = TALK) => (k === 'theme' ? `${NS}.live.theme` : `${NS}.live.${TAB}${talk}.${k}`);
 const store = {
   get<T>(k: string, fallback: T, talk = TALK): T {
     try {

@@ -4,6 +4,8 @@ import type { AnswerKey, QuestionId } from './questions';
 import { emptySlide, type AudienceQuestion, type AvatarData, type Player, type Reaction, type Realtime, type SlideState, type VoteRecord, type Votes } from './realtime';
 
 interface LocalDb {
+  /** versión: sube con cada escritura (la pestaña usa la copia más nueva que conozca) */
+  v?: number;
   slide: SlideState;
   players: Record<string, string>;
   /** uid → epoch ms de la primera entrada */
@@ -21,14 +23,19 @@ const KEY = keyFor(SESSION_ID);
 const OTHER_KEY = keyFor(OTHER_SESSION_ID);
 const empty = (): LocalDb => ({ slide: emptySlide(), players: {}, joinedAt: {}, names: {}, votes: {}, avatares: {}, questions: {}, answers: null });
 
+/** La copia más nueva que llegó por BroadcastChannel (el localStorage de otra pestaña puede ir atrasado). */
+let cache: LocalDb | null = null;
+
 function read(key = KEY): LocalDb {
+  let db: LocalDb;
   try {
-    const db = { ...empty(), ...JSON.parse(localStorage.getItem(key) || '{}') } as LocalDb;
-    db.slide = { ...emptySlide(), ...db.slide };
-    return db;
+    db = { ...empty(), ...JSON.parse(localStorage.getItem(key) || '{}') } as LocalDb;
   } catch {
-    return empty();
+    db = empty();
   }
+  if (key === KEY && cache && (cache.v ?? 0) > (db.v ?? 0)) db = structuredClone(cache);
+  db.slide = { ...emptySlide(), ...db.slide };
+  return db;
 }
 
 /** Modo ensayo: sin red. Cada pestaña es un asistente distinto. */
@@ -54,16 +61,23 @@ export function createLocalRealtime(): Realtime {
   const write = (fn: (db: LocalDb) => void) => {
     const db = read();
     fn(db);
+    db.v = (db.v ?? 0) + 1;
+    cache = structuredClone(db);
     try {
       localStorage.setItem(KEY, JSON.stringify(db));
     } catch {
       /* cuota llena */
     }
-    channel.postMessage({ type: 'db' });
+    // El mensaje lleva la base completa: el localStorage de otras pestañas puede llegar tarde.
+    channel.postMessage({ type: 'db', db });
     emit();
   };
   channel.onmessage = (e) => {
-    if (e.data?.type === 'db') emit();
+    if (e.data?.type === 'db') {
+      const db = e.data.db as LocalDb | undefined;
+      if (db && (db.v ?? 0) >= (cache?.v ?? 0)) cache = db;
+      emit();
+    }
     if (e.data?.type === 'reaction') reactionListeners.forEach((l) => l(e.data.r, e.data.uid));
   };
   const sub = (fn: (db: LocalDb) => void) => {
@@ -149,8 +163,13 @@ export function createLocalRealtime(): Realtime {
     },
     onAvatars: (cb) => sub((db) => cb(Object.values(db.avatares).sort((a, b) => b.createdAt - a.createdAt))),
     onOtherAvatars(cb) {
-      const emitOther = () => cb(new Set(Object.values(read(OTHER_KEY).avatares).filter((p) => !p.hidden).map((p) => p.id)));
-      const h = (e: MessageEvent) => e.data?.type === 'db' && emitOther();
+      const emitOther = () => cb(new Map(Object.values(read(OTHER_KEY).avatares).filter((p) => !p.hidden).map((p) => [p.id, p.opts])));
+      const h = (e: MessageEvent) => {
+        if (e.data?.type !== 'db') return;
+        const db = e.data.db as LocalDb | undefined;
+        if (db) cb(new Map(Object.values(db.avatares ?? {}).filter((p) => !p.hidden).map((p) => [p.id, p.opts])));
+        else emitOther();
+      };
       otherChannel.addEventListener('message', h);
       queueMicrotask(emitOther);
       return () => otherChannel.removeEventListener('message', h);

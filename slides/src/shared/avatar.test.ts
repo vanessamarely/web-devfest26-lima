@@ -39,6 +39,15 @@ describe('avatar limeño', () => {
     for (const list of Object.values(MENSAJES_BY_TALK)) expect(list.length).toBeLessThanOrEqual(21);
   });
 
+  it('las reglas de Firestore aceptan exactamente las opciones del avatar', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { join } = await import('node:path');
+    const rules = readFileSync(join(process.cwd(), '..', 'firestore.rules'), 'utf8');
+    const lista = rules.match(/o\.keys\(\)\.hasOnly\(\[([^\]]+)\]\)/)![1].match(/'(\w+)'/g)!.map((x) => x.slice(1, -1));
+    expect([...lista].sort()).toEqual([...AVATAR_KEYS].sort());
+    for (const k of AVATAR_KEYS) expect(rules).toContain(`smallInt(o.${k}, 12)`);
+  });
+
   it('describe qué cambió al pasar de una charla a otra', () => {
     const a = normalizeAvatar({ ropa: 0, gorro: 0, accesorio: 1 });
     expect(diffAvatar(a, { ...a, gorro: 3, accesorio: 6 })).toEqual(['casco de parapente', 'lupa']);

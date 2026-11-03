@@ -63,7 +63,7 @@ export async function initLive(stage: DeckStage, sections: HTMLElement[]) {
   let votes: VoteRecord[] = [];
   let avatars: AvatarData[] = [];
   /** uids con avatar publicado en la OTRA charla (bono +200 e insignia "Día 1 + Día 2"). */
-  let otherAvatars = new Set<string>();
+  let otherAvatars = new Map<string, AvatarOptions>();
   let questions: AudienceQuestion[] = [];
   let slide: SlideState | null = null;
   let answers: AnswerKey = {};
@@ -412,7 +412,7 @@ export async function initLive(stage: DeckStage, sections: HTMLElement[]) {
         // +200: ya tenía su avatar en la otra charla y vino a esta (está en esta sala).
         const returning = otherAvatars.has(uid);
         const extras = { avatar: withAvatar.has(uid), returning, early, asked: askedSet.has(uid), reactions: part.reactions[uid] ?? 0 };
-        return { uid, name: names.get(uid) ?? own?.name ?? 'Limeñ@ anónim@', score: scoreFor(v, slide?.openedAt ?? {}, extras, answers), speed, code: winnerCode(uid), opts: own?.opts ?? null, both: returning };
+        return { uid, name: names.get(uid) ?? own?.name ?? 'Limeñ@ anónim@', score: scoreFor(v, slide?.openedAt ?? {}, extras, answers), speed, code: winnerCode(uid), opts: own?.opts ?? otherAvatars.get(uid) ?? null, both: returning };
       })
       // Para entrar al podio hay que acertar al menos una pregunta: los bonos solo suben posiciones.
       .filter((r) => r.score > 0 && correctCount(byVote.get(r.uid)?.votes ?? {}, answers) > 0)

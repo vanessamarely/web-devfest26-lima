@@ -147,8 +147,8 @@ export async function createFirebaseRealtime(): Promise<Realtime> {
       // Solo el deck escucha esto (una lectura por pelícano de la otra charla).
       return onSnapshot(
         query(collection(otherSession, 'avatares'), limit(600)),
-        (snap) => cb(new Set(snap.docs.filter((d) => !d.data().hidden).map((d) => d.id))),
-        () => cb(new Set()),
+        (snap) => cb(new Map(snap.docs.filter((d) => !d.data().hidden).map((d) => [d.id, d.data().opts]))),
+        () => cb(new Map()),
       );
     },
     onQuestions(cb, onError) {

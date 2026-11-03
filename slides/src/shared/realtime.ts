@@ -128,8 +128,8 @@ export interface Realtime {
   /** Cada reacción nueva con el uid de quien la envió (para el bono por participar). */
   onReaction(cb: (r: Reaction, uid: string) => void): Unsub;
   onAvatars(cb: (list: AvatarData[]) => void): Unsub;
-  /** Quiénes (uid) publicaron su avatar en la OTRA charla: suman +200 si también están en esta. */
-  onOtherAvatars(cb: (uids: Set<string>) => void): Unsub;
+  /** Quiénes (uid → su avatar) publicaron su avatar en la OTRA charla: suman +200 si también están en esta. */
+  onOtherAvatars(cb: (avatares: Map<string, AvatarOptions>) => void): Unsub;
   /** Solo presentadora (las reglas no dejan leerlas a nadie más). */
   onQuestions(cb: (qs: AudienceQuestion[]) => void, onError?: (msg: string) => void): Unsub;
   removeQuestion(id: string): Promise<void>;

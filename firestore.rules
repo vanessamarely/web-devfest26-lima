@@ -125,10 +125,11 @@ service cloud.firestore {
           && d.name is string && d.name.size() > 0 && d.name.size() <= 24
           && smallInt(d.mensaje, 20)
           && o is map
-          && o.keys().hasOnly(['piel', 'pelo', 'colorPelo', 'ropa', 'gorro', 'lentes', 'expresion', 'accesorio', 'companero'])
+          && o.keys().hasOnly(['piel', 'pelo', 'colorPelo', 'ropa', 'gorro', 'lentes', 'expresion', 'accesorio', 'rasgos', 'abajo'])
           && smallInt(o.piel, 12) && smallInt(o.pelo, 12) && smallInt(o.colorPelo, 12)
           && smallInt(o.ropa, 12) && smallInt(o.gorro, 12) && smallInt(o.lentes, 12)
-          && smallInt(o.expresion, 12) && smallInt(o.accesorio, 12) && smallInt(o.companero, 12);
+          && smallInt(o.expresion, 12) && smallInt(o.accesorio, 12)
+          && smallInt(o.rasgos, 12) && smallInt(o.abajo, 12);
       }
     }
 
