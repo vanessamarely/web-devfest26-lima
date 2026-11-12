@@ -7,7 +7,7 @@
 // (+ su propio voto). El contenido de cada slide ya viene en el bundle (content.ts).
 // Solo el deck escucha las colecciones (asistentes, votos, avatares) y publica agregados
 // (resultados, podio) en el documento de sesión en momentos puntuales.
-import { hasFirebase } from './config';
+import { hasFirebase, type TalkId } from './config';
 import type { LiveKind } from './content';
 import type { AvatarOptions } from './avatar';
 import type { AnswerKey, QuestionId } from './questions';
@@ -140,6 +140,11 @@ export interface Realtime {
   /** Respuestas privadas: solo la presentadora puede leerlas o escribirlas. */
   loadAnswers(): Promise<AnswerKey | null>;
   saveAnswers(a: AnswerKey): Promise<void>;
+
+  /** Agenda compartida: qué charla va primero (null si nadie la eligió aún). */
+  onAgenda(cb: (primera: TalkId | null) => void): Unsub;
+  /** Solo presentadora: fija qué charla va primero. */
+  setAgenda(primera: TalkId): Promise<void>;
 
   /** Solo presentadora: login con GitHub para poder escribir la sesión. */
   signInPresenter(): Promise<boolean>;

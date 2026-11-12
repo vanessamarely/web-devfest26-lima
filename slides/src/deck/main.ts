@@ -43,7 +43,7 @@ import {
   createIcons,
 } from 'lucide';
 import { CHECKLIST, CODE, CODE_LANG, SLIDE_BY_ID } from '../shared/content';
-import { DEMO_URL, META, NS, OTHER_TALK, TALK, PUBLIC_DEMO_URL, REPO_URL, TALKS, prettyUrl, publicLiveUrl, withSessionParams } from '../shared/config';
+import { DEMO_URL, META, NS, OTHER_TALK, TALK, diaDe, getPrimera, setPrimera, PUBLIC_DEMO_URL, REPO_URL, TALKS, prettyUrl, publicLiveUrl, withSessionParams } from '../shared/config';
 import { avatarSVG, type AvatarOptions } from '../shared/avatar';
 import { QUESTIONS, type QuestionId } from '../shared/questions';
 import { esc } from '../shared/esc';
@@ -152,6 +152,16 @@ fetch(`/clips/${TALK}/metrics.json`, { cache: 'no-store' })
     });
   })
   .catch(() => undefined);
+// ── Agenda: "Día 1/Día 2" y el título de la otra charla (el CSS elige los textos de primera o segunda) ──
+function pintarAgenda() {
+  document.querySelectorAll('[data-dia]').forEach((el) => (el.textContent = diaDe(TALK)));
+  document.querySelectorAll('[data-otra-titulo]').forEach((el) => (el.textContent = TALKS[OTHER_TALK].title));
+  menu?.querySelectorAll<HTMLElement>('[data-primera]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.primera === getPrimera())));
+  const otra = menu?.querySelector('[data-otra-dia]');
+  if (otra) otra.textContent = TALKS[OTHER_TALK].day;
+  dispatchEvent(new Event('tweakchange'));
+}
+addEventListener('agenda', pintarAgenda);
 const checklist = document.querySelector('[data-checklist]');
 if (checklist) checklist.innerHTML = CHECKLIST.map(([h, p]) => `<li><span><b>${esc(h)}:</b> ${esc(p)}</span></li>`).join('');
 
@@ -201,7 +211,9 @@ menu.innerHTML = `
   <a href="${withSessionParams('/presenter/')}" target="_blank" rel="noreferrer">Consola de la presentadora <kbd>P</kbd></a>
   <a href="${publicLiveUrl()}" target="_blank" rel="noreferrer">App de asistentes <i data-lucide="arrow-up-right"></i></a>
   <a href="${DEMO_URL}" target="_blank" rel="noreferrer">Demo: ${META.demoName} <i data-lucide="arrow-up-right"></i></a>
-  <a href="${withSessionParams(TALKS[OTHER_TALK].deckPath).replace(/talk=\w+&?/, '')}">Ir a la otra charla: ${TALKS[OTHER_TALK].day} <i data-lucide="arrow-up-right"></i></a>
+  <a href="${withSessionParams(TALKS[OTHER_TALK].deckPath).replace(/talk=\w+&?/, '')}">Ir a la otra charla: <span data-otra-dia>${TALKS[OTHER_TALK].day}</span> <i data-lucide="arrow-up-right"></i></a>
+  <div class="group">Agenda · ¿qué charla va primero?</div>
+  <div class="ratio-row agenda-row"><button type="button" data-primera="genui">Primero<small>UI generativa</small></button><button type="button" data-primera="agentes">Primero<small>DevTools para agentes</small></button></div>
   <a href="${REPO_URL}" target="_blank" rel="noreferrer">Repositorio <i data-lucide="arrow-up-right"></i></a>
   <div class="group">Proporción de pantalla <kbd><span data-ratio-state></span> · A</kbd></div>
   <div class="ratio-row">${MODES.map((m) => {
@@ -255,6 +267,12 @@ addEventListener('pointerdown', (e) => {
 });
 menu.addEventListener('click', (e) => {
   const t = e.target as HTMLElement;
+  const prim = t.closest<HTMLElement>('[data-primera]')?.dataset.primera as 'genui' | 'agentes' | undefined;
+  if (prim) {
+    setPrimera(prim);
+    document.dispatchEvent(new CustomEvent('deck:agenda', { detail: prim }));
+    return;
+  }
   const pickRatio = t.closest<HTMLElement>('[data-ratio-pick]')?.dataset.ratioPick as RatioMode | undefined;
   if (pickRatio) return ratio.set(pickRatio);
   const act = t.closest<HTMLElement>('[data-act]')?.dataset.act;
@@ -345,4 +363,5 @@ addEventListener('resize', () => {
 document.fonts?.ready.then(fitCode);
 fitCode();
 
+pintarAgenda();
 initLive(stage, sections).catch((err) => console.error('[live]', err));

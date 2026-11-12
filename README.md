@@ -49,7 +49,8 @@ Guion minuto a minuto: [docs/GUION-GENUI.md](docs/GUION-GENUI.md) y [docs/GUION-
 | **Muro compartido** | El mismo muro en las dos charlas. **Cada charla guarda su propia versión del avatar**: al pasar del Día 1 al Día 2, tu avatar vuelve y le cambias la ropa, el gorro o lo que lleva (“Hoy cambiaste: casco de parapente, lupa”). En el muro lleva la insignia **Día 1 + Día 2**. |
 | **Podio** | 3 preguntas por charla: 500 por acierto + hasta 500 por rapidez. Bonos: **+200 por traer tu avatar de la otra charla**, +100 avatar, +100 a tiempo, +100 pregunta, hasta +100 reacciones. Para entrar al podio hay que acertar al menos una. |
 | **Reacciones con efecto** | 🔥 un avatar cruza corriendo · 🤯 pasa un parapente · ❤️ sale el sol de Lima. Ensayo: `deckBurst('fire')` en la consola del deck. |
-| **Preguntas** | Solo sobre el tema; no se proyectan; la presentadora las ve con **Q**. |
+| **Pregúntale a la charla** | Botón *Pregúntale* en el celular: un asistente responde dudas **solo con el contenido de esa charla**. Con **Gemini Nano** (Prompt API, Chrome 148+ de computadora; en tu Chrome 157 funciona) responde en español citando los slides; en celulares (Nano no existe en Android/iOS) responde con lo que dicen los slides. Si no le sirvió, la persona envía su pregunta a Vanessa (+100): no se proyecta, la presentadora la ve con **Q**. |
+| **Agenda** | No se sabe qué charla va primero: en el deck, menú → **Agenda** → *Primero: UI generativa* o *Primero: DevTools para agentes* (con sesión de GitHub). Cambia “Día 1/Día 2” y los textos de “mañana” / “¿viniste a la primera charla?” en decks, celulares y portada. Los temas y el contenido no cambian. |
 | **Memoria** | PDF, HTML o Markdown con el resumen, las notas (nunca salen del celular) y el avatar. |
 
 ## Las demos
@@ -105,7 +106,8 @@ Mientras no estén, los celulares funcionan en "modo local" y no se sincronizan 
 4. Prueba: abre `https://devfest-lima-slides.web.app/live/?talk=genui&session=prueba-verificacion` en el celular; debe decir **Conectado** (no "modo ensayo"). Sesiones en vivo: `devfest-lima-2026-genui` y `devfest-lima-2026-agentes`; para ensayar usa `?session=ensayo1` (no toca las reales).
 
 ### Antes de cada charla
-1. Abre el deck con `?presenter=1` → menú → **Presentar en vivo (GitHub)**.
+0. Prueba todo en vivo (crea una sesión de prueba, no toca la real): `node scripts/verificar-en-vivo.mjs`.
+1. Abre el deck con `?presenter=1` → menú → **Presentar en vivo (GitHub)** → menú → **Agenda** (qué charla va primero).
 2. Menú → **Vaciar sesión en vivo…** si quedaron datos de ensayo → **Cargar respuestas del podio…**.
 3. ⚠️ El Día 2 **no** vacíes la sesión del Día 1: de ahí sale el bono +200.
 

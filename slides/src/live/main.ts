@@ -8,19 +8,20 @@
 //  · 3 preguntas por el podio; la respuesta correcta solo llega cuando la presentadora revela.
 //  · Avatar y memoria se generan EN EL DISPOSITIVO: tus notas nunca salen del teléfono.
 import { Brain, Check, Circle, Diamond, Download, FileText, Flame, GitBranch, Heart, MessageCircleQuestion, Moon, NotebookPen, Radio, Send, Shuffle, Sparkles, Square, Sun, SunMoon, Triangle, Trophy, Map as MapIcon, X, createElement, createIcons, type IconNode } from 'lucide';
-import { ASK_TOPICS, SLIDES, SLIDE_BY_ID, type SlideContent } from '../shared/content';
-import { EVENT, META, NS, OTHER_TALK, PUBLIC_DEMO_URL, REPO_URL, SKILL_LABEL, SKILL_URL, TALK, TALKS, TALK_TITLE } from '../shared/config';
+import { SLIDES, SLIDE_BY_ID, type SlideContent } from '../shared/content';
+import { EVENT, META, NS, OTHER_TALK, PUBLIC_DEMO_URL, REPO_URL, SKILL_LABEL, SKILL_URL, TALK, TALKS, TALK_TITLE, setPrimera } from '../shared/config';
 import { downloadFile, keepsakeHTML, keepsakeMarkdown, type SavedNote } from '../shared/keepsake';
 import { ABAJOS, ACCESORIOS, COLORES_PELO, DEFAULT_AVATAR, EXPRESIONES, GORROS, LENTES, LEYENDA, MENSAJES, PELOS, PIELES, RASGOS, ROPAS, avatarPNG, avatarSilhouette, avatarSVG, diffAvatar, normalizeAvatar, randomAvatar, type AvatarOptions } from '../shared/avatar';
 import { claimUniqueName, cleanName, randomName, TOTAL_COMBINATIONS } from '../shared/names';
 import { QUESTIONS, type QuestionId } from '../shared/questions';
 import { REACTIONS, correctCount, getRealtime, podiumKey, winnerCode, type Reaction, type Realtime, type SlideState, type Votes } from '../shared/realtime';
 import { esc } from '../shared/esc';
-import { isOnTopic } from '../shared/ask';
+import { esOfensiva, isOnTopic } from '../shared/ask';
+import { buscar, esDeLaCharla, estadoNano, prepararNano, preguntarNano, respuestaSinModelo, sugerencias, type EstadoNano, type Fuente } from '../shared/asistente';
 
 const ICONS = { Brain, Check, Download, FileText, Flame, GitBranch, Heart, MessageCircleQuestion, NotebookPen, Radio, Send, Shuffle, Sparkles, SunMoon, Trophy, Map: MapIcon, X };
 const REACTION_ICONS: Record<Reaction, IconNode> = { fire: Flame, heart: Heart, mind: Brain, ask: MessageCircleQuestion };
-const REACTION_SHORT: Record<Reaction, string> = { fire: 'Fuego', heart: 'Me gusta', mind: '¡Wow!', ask: 'Pregunta' };
+const REACTION_SHORT: Record<Reaction, string> = { fire: 'Fuego', heart: 'Me gusta', mind: '¡Wow!', ask: 'Pregúntale' };
 const SHAPES: IconNode[] = [Triangle, Diamond, Circle, Square];
 
 const $ = <T extends HTMLElement = HTMLElement>(sel: string, root: ParentNode = document) => root.querySelector<T>(sel)!;
@@ -135,15 +136,25 @@ function markSeen(id: string) {
   }
 }
 
-async function boot() {
+function pintarMarca() {
   const brand = document.querySelector('[data-brand]');
   if (brand) brand.innerHTML = `${esc(META.day)} · <b>${esc(META.short)}</b>`;
+}
+
+async function boot() {
+  pintarMarca();
   document.title = `${META.title} · en vivo`;
   applyTheme(store.get<Theme>('theme', 'system'));
   createIcons({ icons: ICONS, attrs: { 'stroke-width': 1.75, 'aria-hidden': 'true' } });
   setupMenu();
   setupReactions();
   rt = await getRealtime();
+  // Agenda compartida: "Día 1/Día 2" y los avisos de "tu avatar volvió" siguen lo que elija la presentadora.
+  addEventListener('agenda', () => {
+    pintarMarca();
+    if (view !== 'live' || !holding()) render();
+  });
+  rt.onAgenda((p) => p && setPrimera(p));
   const forcedLocal = new URLSearchParams(location.search).has('local');
   if (rt.mode === 'local' && !forcedLocal && import.meta.env.VITE_FIREBASE_API_KEY) {
     $('[data-status]').innerHTML = 'Sin conexión en vivo con la pantalla. Reintentando… <button class="link" type="button" onclick="location.reload()">Reintentar</button>';
@@ -766,6 +777,7 @@ function setupMenu() {
     if (open) menuPanel().querySelector<HTMLElement>('button, a')?.focus();
   });
   document.querySelectorAll<HTMLButtonElement>('[data-go]').forEach((b) => b.addEventListener('click', () => go(b.dataset.go as View)));
+  document.querySelector('[data-asistente]')?.addEventListener('click', () => openAsistente());
   const row = $('[data-theme-row]');
   row.innerHTML = `<button type="button" data-theme-pick="system">${icon(SunMoon, 16)} Auto</button><button type="button" data-theme-pick="light">${icon(Sun, 16)} Claro</button><button type="button" data-theme-pick="dark">${icon(Moon, 16)} Oscuro</button>`;
   row.addEventListener('click', (e) => {
@@ -789,7 +801,7 @@ function setupReactions() {
     const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-r]');
     if (!b || !rt) return;
     const r = b.dataset.r as Reaction;
-    if (r === 'ask') return openAsk();
+    if (r === 'ask') return openAsistente();
     if (Date.now() - last < 900) return; // las reglas también lo limitan
     last = Date.now();
     b.classList.remove('pop');
@@ -800,58 +812,206 @@ function setupReactions() {
   });
 }
 
-// Preguntas para la presentadora: texto libre, por eso NO se proyecta (solo ella las lee).
-// Solo sobre el tema de la charla: se elige el tema y el texto debe mencionar algo relacionado.
-let lastAsk = 0;
-function openAsk() {
+// ── Pregúntale a la charla ──────────────────────────────────────────────
+// Un asistente que responde SOLO con el contenido de esta charla:
+//  · Con Gemini Nano (Chrome 148+ de escritorio): busca los slides relevantes y Nano responde con ellos.
+//  · Sin Nano (celulares, otros navegadores): responde con lo que dicen esos slides.
+// La pregunta no sale del dispositivo, salvo que la persona decida enviársela a la presentadora
+// (texto libre: NO se proyecta, solo ella lo lee y suma +100 al podio).
+interface Mensaje {
+  q: string;
+  a: string;
+  fuentes: { n: number; titulo: string }[];
+  motor: 'nano' | 'charla';
+  enviada?: boolean;
+  /** se canceló porque la persona hizo otra pregunta */
+  cancelada?: boolean;
+}
+const chat: Mensaje[] = store.get('chat', []);
+const guardarChat = () => store.set('chat', chat.slice(-20));
+let estadoIA: EstadoNano | null = null;
+let preguntaActual: AbortController | null = null;
+
+/** Texto del modelo → HTML seguro (negritas, `código` y viñetas). */
+function formatear(t: string): string {
+  return esc(t)
+    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/^\s*[-*•]\s+/gm, '• ')
+    .replace(/\n/g, '<br>');
+}
+
+function openAsistente() {
+  closeMenu();
+  document.querySelector('.asistente-sheet')?.remove();
   const dlg = document.createElement('dialog');
-  dlg.className = 'ask-sheet';
-  dlg.innerHTML = `<form>
-    <h2>${icon(MessageCircleQuestion, 22)} ¿Tienes una pregunta sobre la charla?</h2>
-    <p class="fine">Solo preguntas sobre <b>${esc(META.title)}</b>. Le llegan a Vanessa con tu apodo${name ? ` <b>${esc(name)}</b>` : ''}; no se proyectan y las responde al final.</p>
-    <fieldset class="field"><legend>Tema</legend><div class="chips" role="radiogroup" aria-label="Tema">${ASK_TOPICS.map((tp, i) => `<button type="button" role="radio" aria-checked="${i === 0}" data-topic="${esc(tp)}">${esc(tp)}</button>`).join('')}</div></fieldset>
-    <textarea name="q" rows="4" maxlength="280" required placeholder="${TALK === 'genui' ? 'Ej.: ¿Cómo reservo espacio si no sé cuántas tarjetas vienen?' : 'Ej.: ¿Cómo veo el árbol de accesibilidad que usa mi agente?'}"></textarea>
-    <p class="fine" data-ask-msg role="status"></p>
-    <div class="row"><button class="btn ghost" type="button" data-cancel>Cancelar</button><button class="btn primary" type="submit">${icon(Send, 18)} Enviar</button></div>
-  </form>`;
+  dlg.className = 'ask-sheet asistente-sheet';
+  dlg.setAttribute('aria-labelledby', 'asis-t');
+  dlg.innerHTML = `<div class="asis">
+    <div class="asis-head"><h2 id="asis-t">${icon(Sparkles, 22)} Pregúntale a la charla</h2><button class="icon-btn" type="button" data-close aria-label="Cerrar">${icon(X, 20)}</button></div>
+    <p class="fine">Respondo dudas sobre <b>${esc(TALK_TITLE)}</b> con el contenido de la charla. Tu pregunta no sale de tu dispositivo.</p>
+    <div class="ia-estado" data-ia-estado role="status"></div>
+    <ol class="chat" data-chat aria-live="polite"></ol>
+    <div class="chips sug" data-sug></div>
+    <form class="asis-form" data-form>
+      <label class="sr" for="asis-q">Tu pregunta</label>
+      <textarea id="asis-q" rows="2" maxlength="280" required placeholder="${TALK === 'genui' ? 'Ej.: ¿Por qué mi página salta mientras la IA responde?' : 'Ej.: ¿Qué ve un agente de mi página?'}"></textarea>
+      <button class="btn primary" type="submit">${icon(Send, 18)} Preguntar</button>
+    </form>
+  </div>`;
   document.body.append(dlg);
-  const close = () => {
+  const lista = $('[data-chat]', dlg);
+  const estadoBox = $('[data-ia-estado]', dlg);
+  const area = $<HTMLTextAreaElement>('#asis-q', dlg);
+  const cerrar = () => {
+    preguntaActual?.abort();
     dlg.close();
     dlg.remove();
   };
-  dlg.addEventListener('cancel', () => dlg.remove());
-  dlg.querySelectorAll<HTMLButtonElement>('[data-topic]').forEach((b) =>
-    b.addEventListener('click', () => dlg.querySelectorAll('[data-topic]').forEach((x) => x.setAttribute('aria-checked', String(x === b)))),
-  );
-  $('[data-cancel]', dlg).addEventListener('click', close);
-  dlg.querySelector('form')!.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const text = dlg.querySelector('textarea')!.value.trim();
-    const topic = dlg.querySelector<HTMLElement>('[data-topic][aria-checked="true"]')?.dataset.topic ?? ASK_TOPICS[0];
-    const msg = $('[data-ask-msg]', dlg);
-    if (!text) return;
-    if (!isOnTopic(text)) {
-      msg.textContent = `Tu pregunta no parece ser sobre la charla. Escríbela sobre ${ASK_TOPICS.join(', ')}.`;
+  $('[data-close]', dlg).addEventListener('click', cerrar);
+  dlg.addEventListener('cancel', () => preguntaActual?.abort());
+
+  // Estado de Gemini Nano en este dispositivo
+  const pintarEstado = (progreso?: number) => {
+    const e = estadoIA;
+    estadoBox.dataset.estado = e ?? 'revisando';
+    if (!e) estadoBox.innerHTML = '<span class="dot"></span> Revisando si este dispositivo tiene Gemini Nano…';
+    else if (e === 'listo') estadoBox.innerHTML = `<span class="dot ok"></span> <b>Gemini Nano</b> · responde en tu dispositivo, sin enviar datos`;
+    else if (e === 'descargable')
+      estadoBox.innerHTML = `<span class="dot"></span> Tu Chrome puede usar Gemini Nano. <button class="btn small" type="button" data-activar>Activar (descarga única)</button>`;
+    else if (e === 'descargando')
+      estadoBox.innerHTML = `<span class="dot"></span> Descargando Gemini Nano… <b>${progreso !== undefined ? Math.round(progreso * 100) + ' %' : ''}</b> Mientras tanto te respondo con lo que dice la charla.`;
+    else
+      estadoBox.innerHTML = `<span class="dot"></span> Este dispositivo no tiene Gemini Nano (funciona en Chrome 148+ de computadora). Te respondo con lo que dice la charla.`;
+    estadoBox.querySelector('[data-activar]')?.addEventListener('click', activar);
+  };
+  const activar = async () => {
+    estadoIA = 'descargando';
+    pintarEstado(0);
+    try {
+      await prepararNano((p) => pintarEstado(p)); // necesita el clic (activación de usuario)
+      estadoIA = 'listo';
+    } catch (err) {
+      console.warn('[asistente] Nano', err);
+      estadoIA = 'no-disponible';
+    }
+    pintarEstado();
+  };
+  void (async () => {
+    estadoIA ??= await estadoNano();
+    pintarEstado();
+    if (estadoIA === 'descargando') void activar(); // ya se estaba descargando: mostramos el progreso
+  })();
+
+  const pintarMensaje = (m: Mensaje, li: HTMLElement = document.createElement("li")) => {
+    li.className = 'msg';
+    li.innerHTML = `<p class="q">${esc(m.q)}</p>
+      <div class="a"><span class="motor">${m.motor === 'nano' ? '✦ Gemini Nano' : '📖 De la charla'}</span><div class="txt" data-txt>${m.a ? formatear(m.a) : m.cancelada ? '—' : '<span class="pensando">Pensando…</span>'}</div>
+      ${m.cancelada ? '<p class="fine">Cancelada: hiciste otra pregunta.</p>' : ''}
+      ${m.fuentes.length ? `<p class="fuentes">${m.fuentes.map((f) => `<span>Slide ${f.n} · ${esc(f.titulo)}</span>`).join('')}</p>` : ''}
+      ${m.enviada ? '<p class="fine enviada">✓ Enviada a Vanessa</p>' : `<button class="link" type="button" data-enviar>¿No te sirvió? Enviar mi pregunta a Vanessa (+100)</button>`}</div>`;
+    li.querySelector('[data-enviar]')?.addEventListener('click', () => void enviarAVanessa(m, li));
+    return li;
+  };
+  const pintarChat = () => {
+    lista.replaceChildren(...chat.map((m) => pintarMensaje(m)));
+    const sug = $('[data-sug]', dlg);
+    sug.hidden = chat.length > 0;
+    sug.innerHTML = sugerencias().map((q) => `<button type="button" data-sugerencia>${esc(q)}</button>`).join('');
+    sug.querySelectorAll<HTMLButtonElement>('[data-sugerencia]').forEach((b) => b.addEventListener('click', () => void preguntar(b.textContent!)));
+    lista.lastElementChild?.scrollIntoView({ block: 'end' });
+  };
+
+  async function preguntar(q: string) {
+    q = q.trim();
+    if (q.length < 3) return;
+    if (esOfensiva(q)) {
+      estadoBox.innerHTML = '<span class="dot"></span> Mejor una pregunta sobre la charla 🙂';
       return;
     }
-    if (Date.now() - lastAsk < 15000) return void (msg.textContent = 'Espera unos segundos antes de enviar otra.');
-    const sendBtn = dlg.querySelector<HTMLButtonElement>('[type="submit"]')!;
-    sendBtn.disabled = true;
-    msg.textContent = 'Enviando…';
+    preguntaActual?.abort(); // la pregunta anterior ya no importa
+    const ctrl = (preguntaActual = new AbortController());
+    const cancelar = () => {
+      if (m.cancelada) return;
+      m.cancelada = true;
+      m.a = m.a ? `${m.a.trim()} …` : '';
+      pintarMensaje(m, li);
+      guardarChat();
+    };
+    area.value = '';
+    $('[data-sug]', dlg).hidden = true;
+    const m: Mensaje = { q, a: '', fuentes: [], motor: estadoIA === 'listo' ? 'nano' : 'charla' };
+    chat.push(m);
+    const li = pintarMensaje(m);
+    lista.append(li);
+    li.scrollIntoView({ block: 'end' });
+    const txt = () => li.querySelector<HTMLElement>('[data-txt]')!;
+    const conRespaldo = () => {
+      const r = respuestaSinModelo(q);
+      Object.assign(m, { a: r.texto, fuentes: r.fuentes.map(({ n, titulo }: Fuente) => ({ n, titulo })), motor: 'charla' });
+    };
+    if (m.motor === 'nano' && esDeLaCharla(buscar(q))) {
+      try {
+        for await (const x of preguntarNano(q, ctrl.signal)) {
+          if (ctrl.signal.aborted) return cancelar();
+          if (x.fuentes) m.fuentes = x.fuentes.map(({ n, titulo }) => ({ n, titulo }));
+          if (x.trozo) {
+            m.a += x.trozo;
+            txt().innerHTML = formatear(m.a); // pinta mientras piensa
+          }
+        }
+        if (!m.a.trim()) conRespaldo();
+      } catch (err) {
+        if (ctrl.signal.aborted) return cancelar();
+        console.warn('[asistente] Nano falló, uso el respaldo', err);
+        conRespaldo();
+      }
+    } else conRespaldo(); // sin Nano, o la pregunta no es de esta charla: no inventamos
+    pintarMensaje(m, li);
+    guardarChat();
+  }
+
+  async function enviarAVanessa(m: Mensaje, li: HTMLElement) {
+    const b = li.querySelector<HTMLButtonElement>('[data-enviar]');
+    if (!b) return;
+    if (!(esDeLaCharla(buscar(m.q)) || isOnTopic(m.q)) || esOfensiva(m.q)) {
+      b.textContent = 'Solo se envían preguntas sobre la charla.';
+      return;
+    }
+    if (Date.now() - lastAsk < 15000) {
+      b.textContent = 'Espera unos segundos antes de enviar otra.';
+      return;
+    }
+    b.disabled = true;
+    b.textContent = 'Enviando…';
     try {
-      await rt.ask({ name: name ?? 'Anónimo', text: `[${topic}] ${text}`.slice(0, 280), slide: (live?.label ?? '').slice(0, 80) });
+      await rt.ask({ name: name ?? 'Anónimo', text: m.q.slice(0, 280), slide: (live?.label ?? '').slice(0, 80) });
       void rt.react('ask').catch(() => undefined);
       lastAsk = Date.now();
-      msg.textContent = '¡Enviada! Gracias.';
-      setTimeout(close, 1100);
+      m.enviada = true;
+      guardarChat();
+      pintarMensaje(m, li);
     } catch (err) {
       console.error('[live] pregunta', err);
-      sendBtn.disabled = false;
-      msg.textContent = 'No se pudo enviar. Revisa tu conexión e inténtalo de nuevo.';
+      b.disabled = false;
+      b.textContent = 'No se pudo enviar. Toca para reintentar.';
+    }
+  }
+
+  $('[data-form]', dlg).addEventListener('submit', (e) => {
+    e.preventDefault();
+    void preguntar(area.value);
+  });
+  area.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      void preguntar(area.value);
     }
   });
+  pintarChat();
   dlg.showModal();
-  dlg.querySelector('textarea')!.focus();
+  area.focus();
 }
+let lastAsk = 0;
 
 void boot();

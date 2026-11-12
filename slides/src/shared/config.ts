@@ -18,7 +18,8 @@ export const TALK_IDS: TalkId[] = ['genui', 'agentes'];
 
 export interface TalkMeta {
   id: TalkId;
-  day: string;
+  /** "Día 1" o "Día 2" según la agenda (se elige en el deck: menú → Agenda). */
+  readonly day: string;
   title: string;
   titleEs: string;
   /** Texto corto para chips y menús */
@@ -37,7 +38,9 @@ export interface TalkMeta {
 export const TALKS: Record<TalkId, TalkMeta> = {
   genui: {
     id: 'genui',
-    day: 'Día 1',
+    get day() {
+      return diaDe('genui');
+    },
     title: 'Web performance en la era de la UI generativa',
     titleEs: 'Optimizing Web Performance in the Era of Generative UI',
     short: 'UI generativa rápida',
@@ -52,7 +55,9 @@ export const TALKS: Record<TalkId, TalkMeta> = {
   },
   agentes: {
     id: 'agentes',
-    day: 'Día 2',
+    get day() {
+      return diaDe('agentes');
+    },
     title: 'Chrome DevTools para agentes',
     titleEs: 'Chrome DevTools for Agents',
     short: 'DevTools para agentes',
@@ -69,6 +74,46 @@ export const TALKS: Record<TalkId, TalkMeta> = {
 
 const params = new URLSearchParams(location.search);
 const LAST_TALK_KEY = `${NS}.lastTalk`;
+
+// ── Agenda: ¿qué charla va primero? ───────────────────────────────────────
+// No se sabe de antemano qué día va cada charla. La presentadora lo elige en el deck
+// (menú → Agenda) y queda en Firestore (config/agenda) para todos los celulares.
+// Mientras tanto: ?primera=genui|agentes · lo último guardado en este navegador · VITE_PRIMERA · genui.
+const AGENDA_KEY = `${NS}.agenda.primera`;
+const esTalk = (v: unknown): v is TalkId => v === 'genui' || v === 'agentes';
+let primera: TalkId = (() => {
+  const p = params.get('primera');
+  if (esTalk(p)) return p;
+  try {
+    const g = localStorage.getItem(AGENDA_KEY);
+    if (esTalk(g)) return g;
+  } catch {
+    /* noop */
+  }
+  const env = import.meta.env.VITE_PRIMERA as string | undefined;
+  return esTalk(env) ? env : 'genui';
+})();
+export const getPrimera = () => primera;
+/** ¿Esta charla (o la indicada) es la primera de la agenda? */
+export const esPrimera = (t?: TalkId) => (t ?? TALK) === primera;
+export const diaDe = (t: TalkId) => (t === primera ? 'Día 1' : 'Día 2');
+/** Cambia la agenda en este navegador y avisa (evento "agenda"). La copia compartida vive en Firestore. */
+export function setPrimera(t: TalkId) {
+  if (!esTalk(t)) return;
+  const cambio = t !== primera;
+  primera = t;
+  try {
+    localStorage.setItem(AGENDA_KEY, t);
+  } catch {
+    /* noop */
+  }
+  marcarOrden();
+  if (cambio) dispatchEvent(new CustomEvent('agenda', { detail: t }));
+}
+/** <html data-orden="primera|segunda">: el CSS muestra los textos de "mañana" o de "ayer". */
+function marcarOrden() {
+  if (typeof document !== 'undefined') document.documentElement.dataset.orden = esPrimera() ? 'primera' : 'segunda';
+}
 
 /** ¿Qué charla es? ?talk= gana; luego la ruta (/genui/, /agentes/); luego la última usada. */
 function detectTalk(): TalkId {
@@ -94,6 +139,7 @@ function remember(t: TalkId): TalkId {
 }
 
 export const TALK: TalkId = detectTalk();
+marcarOrden();
 export const OTHER_TALK: TalkId = TALK === 'genui' ? 'agentes' : 'genui';
 export const META = TALKS[TALK];
 export const TALK_TITLE = META.title;

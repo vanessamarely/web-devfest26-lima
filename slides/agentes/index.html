@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Chrome DevTools para agentes — DevFest Lima 2026 · Día 2</title>
+    <title>Chrome DevTools para agentes — DevFest Lima 2026</title>
     <meta name="description" content="Cómo ver lo que un agente ve, hace y piensa en tu web, simular usuarios automatizados y depurar la IA del cliente con Chrome DevTools y Chrome DevTools for agents. DevFest Lima 2026." />
     <link rel="icon" href="/brand/logo-icon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -27,7 +27,7 @@
         <div class="cover-landmark" data-landmark="cover" aria-hidden="true"></div>
         <div class="frame cover-frame">
           <img class="badge-img" src="/brand/web-badge.svg" alt="Web @DevFest Lima" />
-          <p class="eyebrow">// Día 2 · inspeccionar · simular · depurar</p>
+          <p class="eyebrow">// <span data-dia>Día 2</span> · inspeccionar · simular · depurar</p>
           <h1 class="cover-title"><span>Chrome</span><span>DevTools</span><span><span class="hl">para agentes</span></span></h1>
           <div class="speaker">
             <img src="/brand/vanessa.png" alt="" />
@@ -38,11 +38,11 @@
         <div class="cenefa bottom" aria-hidden="true"></div>
       </section>
 
-      <!-- ═════════════ ÚNETE ═════════════ -->
+      <!-- ═════════════ ÚNETE (cambia según la agenda: primera o segunda charla) ═════════════ -->
       <section data-id="unete" data-label="Únete">
         <div class="frame card-frame">
           <p class="eyebrow">// Esta charla también es una app</p>
-          <h2 class="title">¿Viniste ayer? <span class="hl">Tu avatar vuelve</span></h2>
+          <h2 class="title"><span data-si="primera">Escanea, juega por el podio y <span class="hl">crea tu avatar limeño</span></span><span data-si="segunda">¿Viniste a la primera charla? <span class="hl">Tu avatar vuelve</span></span></h2>
           <div class="join-grid">
             <div class="qr-card">
               <div data-qr="live"></div>
@@ -52,11 +52,13 @@
             <div class="stack">
               <div class="counters">
                 <div class="box blue"><div class="counter-big"><span data-count="players">0</span></div><small class="mono">en la sala</small></div>
-                <div class="box yellow"><div class="counter-big"><span data-count="returning">0</span></div><small class="mono">volvieron con su avatar</small></div>
+                <div class="box yellow" data-si="primera"><div class="counter-big"><span data-count="avatars">0</span></div><small class="mono">avatares</small></div>
+                <div class="box yellow" data-si="segunda"><div class="counter-big"><span data-count="returning">0</span></div><small class="mono">volvieron con su avatar</small></div>
               </div>
-              <div class="box green"><h3 class="ic"><i data-lucide="repeat"></i> Tu avatar del Día 1, editable</h3><p>Cámbiale la ropa, el gorro o lo que lleva para hoy. Traerlo suma <b>+200</b>.</p></div>
+              <div class="box green" data-si="primera"><h3 class="ic"><i data-lucide="repeat"></i> En la otra charla, tu avatar vuelve</h3><p>En <b data-otra-titulo>la otra charla</b> le cambias la ropa y suma <b>+200</b>.</p></div>
+              <div class="box green" data-si="segunda"><h3 class="ic"><i data-lucide="repeat"></i> Tu avatar de la primera charla, editable</h3><p>Cámbiale la ropa, el gorro o lo que lleva para hoy. Traerlo suma <b>+200</b>.</p></div>
               <div class="box red"><h3 class="ic"><i data-lucide="trophy"></i> 3 preguntas, 1 podio</h3><p>Acierta rápido. Bonos: entrar ahora, publicar tu avatar, preguntar y reaccionar.</p></div>
-              <div class="box"><h3 class="ic"><i data-lucide="download"></i> Tu memoria al final</h3><p>PDF o HTML con cada slide, tus notas y tu avatar.</p></div>
+              <div class="box"><h3 class="ic"><i data-lucide="sparkles"></i> Pregúntale a la charla</h3><p>Un asistente con <b>Gemini Nano</b> responde tus dudas sobre esta charla.</p></div>
             </div>
           </div>
         </div>
@@ -550,7 +552,7 @@ uid=4_14 spinbutton "Personas" value="4"
       <!-- ═════════════ PODIO ═════════════ -->
       <section data-id="podio" data-label="Podio">
         <div class="frame card-frame">
-          <p class="eyebrow">// Aciertos + rapidez · bonos: avatar de ayer +200 · a tiempo +100 · avatar +100 · pregunta +100 · reacciones hasta +100</p>
+          <p class="eyebrow">// Aciertos + rapidez · bonos: otra charla +200 · a tiempo, avatar y pregunta +100 · reacciones hasta +100</p>
           <h2 class="title">El <span class="hl">podio</span></h2>
           <div class="podium" data-podium></div>
           <div class="podium-rest" data-rest></div>
@@ -563,7 +565,7 @@ uid=4_14 spinbutton "Personas" value="4"
         <div class="skyline" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
         <div class="cover-landmark" data-landmark="cover" aria-hidden="true"></div>
         <div class="frame cover-frame">
-          <p class="eyebrow">// Gracias por estos dos días</p>
+          <p class="eyebrow"><span data-si="primera">// Mañana: <span data-otra-titulo>la otra charla</span> · trae tu avatar</span><span data-si="segunda">// Gracias por estos dos días</span></p>
           <h1 class="cover-title sm"><span>¡Gracias,</span><span><span class="hl">Lima!</span></span></h1>
           <div class="thanks-grid">
             <div class="qr-card sm"><div data-qr="repo"></div><strong>Repositorio</strong><span>código, demos y recursos</span></div>

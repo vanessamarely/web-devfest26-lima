@@ -200,6 +200,20 @@ export async function createFirebaseRealtime(): Promise<Realtime> {
       return n;
     },
 
+    onAgenda(cb) {
+      return onSnapshot(
+        doc(db, 'config', 'agenda'),
+        (snap) => {
+          const p = snap.data()?.primera;
+          cb(p === 'genui' || p === 'agentes' ? p : null);
+        },
+        () => cb(null),
+      );
+    },
+    async setAgenda(primera) {
+      await setDoc(doc(db, 'config', 'agenda'), { primera, updatedAt: serverTimestamp() });
+    },
+
     async loadAnswers() {
       // Las reglas solo permiten leer este documento a la presentadora.
       const snap = await getDoc(doc(session, 'private', 'answers'));

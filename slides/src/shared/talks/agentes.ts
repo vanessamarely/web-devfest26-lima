@@ -123,7 +123,7 @@ export const SLIDES: SlideContent[] = [
       'Los agentes ya navegan, leen y hacen clic en tu web. DevTools ahora te deja ver lo que ven, hacen y piensan.',
       'Hoy: 4 preguntas para depurar a un agente, con una demo de reservas en Lima.',
     ],
-    notes: '¡Hola de nuevo, Lima! "Ayer hablamos de interfaces que escribe una IA. Hoy, de IAs que USAN nuestras interfaces… y de cómo depurarlas."',
+    notes: '¡Hola de nuevo, Lima! "En la otra charla hablamos de interfaces que escribe una IA. Hoy, de IAs que USAN nuestras interfaces… y de cómo depurarlas."',
     time: '0:00',
     inSummary: true,
   }),
@@ -132,8 +132,8 @@ export const SLIDES: SlideContent[] = [
     label: 'Únete',
     kind: 'join',
     title: 'Únete a la charla',
-    summary: ['Escanea el QR. Si viniste ayer, tu avatar vuelve: cámbiale la ropa para hoy y suma +200 al podio.'],
-    notes: '"Quien creó su avatar ayer: ábranlo, cámbienle la ropa o lo que lleva y publíquenlo. Suma +200." Sigue el mismo QR de ayer.',
+    summary: ['Escanea el QR. Si estuviste en la otra charla, tu avatar vuelve: cámbiale la ropa para hoy y suma +200 al podio.'],
+    notes: 'Si esta es la segunda charla: "Quien creó su avatar en la charla de UI generativa: ábranlo, cámbienle la ropa o lo que lleva y publíquenlo. Suma +200." Si es la primera: "Creen su avatar: en la otra charla lo pueden traer y suma +200." El QR es el mismo sitio para las dos.',
     time: '0:40',
   }),
   S({
@@ -496,7 +496,7 @@ export const SLIDES: SlideContent[] = [
     section: S5,
     title: 'El muro de avatares limeños',
     summary: ['Los avatares de la sala; los que vinieron los dos días llevan la insignia "Día 1 + Día 2".'],
-    notes: 'Señala los que tienen insignia: "estos vinieron ayer y hoy, +200". Clic en uno para ocultarlo.',
+    notes: 'Señala los que tienen insignia: "estos estuvieron en las dos charlas, +200". Clic en uno para ocultarlo.',
     time: '26:00',
   }),
   S({

@@ -155,7 +155,7 @@ export const SLIDES: SlideContent[] = [
     kind: 'join',
     title: 'Únete a la charla',
     summary: ['Escanea el QR: sigue los slides en tu celular, toma notas, crea tu avatar limeño y juega por el podio.'],
-    notes: 'Que escaneen mientras te presentas. "Hay 3 preguntas: quien acierte rápido sube al podio. Creen su avatar: mañana, en la charla de DevTools, lo pueden traer, cambiarle la ropa y suma +200. Sus notas no salen de su celular."',
+    notes: 'Que escaneen mientras te presentas. "Hay 3 preguntas: quien acierte rápido sube al podio. Creen su avatar: en la otra charla (Chrome DevTools para agentes) lo pueden traer, cambiarle la ropa y suma +200. Y si les queda una duda, el botón Pregunta tiene un asistente con Gemini Nano que conoce esta charla."',
     time: '0:40',
   }),
   S({
@@ -478,7 +478,7 @@ export const SLIDES: SlideContent[] = [
       'Ponle nombre a tu trabajo: performance.measure con una pista propia ("Nido · UI generativa").',
     ],
     code: { file: 'demo-genui/src/lab/pistas.ts', text: CODE_PISTA },
-    notes: '"Mañana, en la charla de DevTools para agentes, vemos cómo un agente de código hace esto por ti." Modo foco en la pista.',
+    notes: '"En la otra charla, Chrome DevTools para agentes, vemos cómo un agente de código hace esto por ti." Modo foco en la pista.',
     time: '18:30',
     inSummary: true,
   }),
@@ -529,7 +529,7 @@ export const SLIDES: SlideContent[] = [
     section: S5,
     title: 'El muro de avatares limeños',
     summary: ['Los avatares de la sala, con lo que cada persona se lleva de la charla.'],
-    notes: 'Lee 2–3 mensajes. "Mañana tráiganlo a la charla de DevTools: le cambian la ropa y suma +200." Clic en uno para ocultarlo (moderación).',
+    notes: 'Lee 2–3 mensajes. "Tráiganlo a la otra charla (DevTools para agentes): le cambian la ropa y suma +200." Clic en uno para ocultarlo (moderación).',
     time: '26:45',
   }),
   S({
@@ -559,8 +559,8 @@ export const SLIDES: SlideContent[] = [
     kind: 'end',
     section: S5,
     title: '¡Gracias, Lima!',
-    summary: ['Descarga tu memoria (PDF) desde el celular. Mañana: Chrome DevTools para agentes.'],
-    notes: '"Descarguen su memoria. Y mañana los espero con su avatar en la charla de DevTools para agentes." Preguntas (tecla Q).',
+    summary: ['Descarga tu memoria (PDF) desde el celular. La otra charla: Chrome DevTools para agentes.'],
+    notes: '"Descarguen su memoria. Y los espero con su avatar en la otra charla, DevTools para agentes (si es después de esta)." Preguntas (tecla Q).',
     time: '29:00',
   }),
 ];

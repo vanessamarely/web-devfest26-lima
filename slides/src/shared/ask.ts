@@ -6,3 +6,6 @@ const OFF_TOPIC = /(put[ao]|mierd|pend[ae]j|verga|coñ|carajo|fuck|shit|sex|nazi
 
 /** ¿La pregunta es sobre la charla? (mínimo 8 caracteres, sin groserías, con algún término del tema) */
 export const isOnTopic = (text: string) => text.trim().length >= 8 && !OFF_TOPIC.test(text) && ON_TOPIC.test(text);
+
+/** ¿Tiene groserías? (nada ofensivo le llega a la presentadora) */
+export const esOfensiva = (text: string) => OFF_TOPIC.test(text);

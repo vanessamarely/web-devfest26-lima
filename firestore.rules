@@ -133,6 +133,14 @@ service cloud.firestore {
       }
     }
 
+    // Agenda: qué charla va primero (no se conocía al preparar las charlas). Todos leen; solo la presentadora la fija.
+    match /config/agenda {
+      allow read: if true;
+      allow write: if isPresenter()
+        && request.resource.data.keys().hasOnly(['primera', 'updatedAt'])
+        && request.resource.data.primera in ['genui', 'agentes'];
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

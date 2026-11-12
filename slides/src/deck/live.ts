@@ -10,7 +10,7 @@
 import QRCode from 'qrcode';
 import { Brain, Check, Circle, Diamond, Flame, Heart, MessageCircleQuestion, Square, Triangle, createElement, type IconNode } from 'lucide';
 import { SLIDE_BY_ID } from '../shared/content';
-import { NS, OTHER_TALK, PUBLIC_DEMO_URL, PUBLIC_SLIDES_URL, REPO_URL, SESSION_ID, TALKS, prettyUrl, publicLiveUrl } from '../shared/config';
+import { NS, OTHER_TALK, setPrimera, PUBLIC_DEMO_URL, PUBLIC_SLIDES_URL, REPO_URL, SESSION_ID, TALKS, prettyUrl, publicLiveUrl } from '../shared/config';
 import { MENSAJES, avatarSilhouette, avatarSVG, type AvatarOptions } from '../shared/avatar';
 import { QUESTIONS, QUESTION_IDS, parseAnswerKey, type AnswerKey, type QuestionId } from '../shared/questions';
 import { REACTIONS, correctCount, getRealtime, podiumKey, scoreFor, tally, uniqueCodes, winnerCode, type AudienceQuestion, type AvatarData, type Player, type Reaction, type SlideState, type VoteRecord } from '../shared/realtime';
@@ -160,6 +160,22 @@ export async function initLive(stage: DeckStage, sections: HTMLElement[]) {
     }
     if (m.type === 'hello') tellConsole();
   };
+
+  // ── Agenda compartida (Firestore config/agenda): todos los decks y celulares la siguen ──
+  rt.onAgenda((p) => p && setPrimera(p));
+  document.addEventListener('deck:agenda', async (e) => {
+    const p = (e as CustomEvent<'genui' | 'agentes'>).detail;
+    if (rt.mode === 'firebase' && !presenter) {
+      alert('Cambié la agenda solo en este navegador. Para que la vean los celulares, primero inicia sesión: menú → Presentar en vivo (GitHub).');
+      return;
+    }
+    try {
+      await rt.setAgenda(p);
+    } catch (err) {
+      console.warn('[agenda]', err);
+      alert('No se pudo guardar la agenda en vivo (¿sesión de GitHub?).');
+    }
+  });
 
   document.addEventListener('deck:present', async () => {
     try {

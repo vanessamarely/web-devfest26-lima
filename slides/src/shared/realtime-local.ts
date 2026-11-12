@@ -190,6 +190,21 @@ export function createLocalRealtime(): Realtime {
       return n;
     },
 
+    onAgenda(cb) {
+      // En ensayo la agenda vive en localStorage; otras pestañas se enteran por el evento storage.
+      const leer = () => {
+        const v = localStorage.getItem(`${NS}.agenda.primera`);
+        cb(v === 'genui' || v === 'agentes' ? v : null);
+      };
+      const h = (e: StorageEvent) => e.key === `${NS}.agenda.primera` && leer();
+      addEventListener('storage', h);
+      queueMicrotask(leer);
+      return () => removeEventListener('storage', h);
+    },
+    async setAgenda(primera) {
+      localStorage.setItem(`${NS}.agenda.primera`, primera);
+    },
+
     async loadAnswers() {
       return isPresenter() ? read().answers : null;
     },
