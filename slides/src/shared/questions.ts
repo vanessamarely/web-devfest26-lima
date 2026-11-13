@@ -51,12 +51,12 @@ const BY_TALK: Record<TalkId, Record<QuestionId, Question>> = {
     q2: {
       id: 'q2',
       topic: 'Leer y reutilizar',
-      text: 'Mientras la IA responde, corrige el precio de 1 de los 300 departamentos. ¿Qué hace una interfaz rápida?',
+      text: 'La página ya muestra 300 departamentos. La IA envía una línea más: un departamento bajó de precio. ¿Qué debería hacer la página?',
       options: [
-        { id: 'a', label: 'Vuelve a leer toda la respuesta y recrea la lista completa con innerHTML' },
-        { id: 'b', label: 'Lee solo la línea nueva y cambia únicamente el precio de esa tarjeta' },
-        { id: 'c', label: 'Espera a que termine la respuesta y recarga la página' },
-        { id: 'd', label: 'Le pide al modelo que vuelva a escribir la lista completa' },
+        { id: 'a', label: 'Leer otra vez toda la respuesta y volver a dibujar la lista completa' },
+        { id: 'b', label: 'Leer solo esa línea nueva y cambiar únicamente ese precio' },
+        { id: 'c', label: 'Esperar a que la IA termine y recargar la página' },
+        { id: 'd', label: 'Pedirle a la IA que vuelva a enviar los 300 departamentos' },
       ],
     },
     q3: {
