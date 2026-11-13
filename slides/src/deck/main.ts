@@ -309,11 +309,16 @@ document.addEventListener('click', (e) => {
   if (!abierto) fig.classList.add('zoom');
 });
 
+// Cada publicación tiene su versión: los clips y sus pósters se piden con ?v=, así nunca se ve uno viejo.
+declare const __CLIPS_V__: string;
+const conVersion = (url: string) => `${url}${url.includes('?') ? '&' : '?'}v=${typeof __CLIPS_V__ === 'string' ? __CLIPS_V__ : 'dev'}`;
+document.querySelectorAll<HTMLVideoElement>('video[poster]').forEach((v) => (v.poster = conVersion(v.getAttribute('poster')!)));
+
 // ── Clips de la demo: se cargan perezosamente y solo se reproducen en el slide activo ──
 function playClips(slide: HTMLElement) {
   document.querySelectorAll<HTMLVideoElement>('video[data-src]').forEach((v) => {
     if (slide.contains(v)) {
-      if (!v.src) v.src = v.dataset.src!;
+      if (!v.src) v.src = conVersion(v.dataset.src!);
       v.currentTime = 0;
       v.play().catch(() => undefined);
     } else v.pause();

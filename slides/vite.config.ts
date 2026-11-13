@@ -5,6 +5,8 @@ const dir = import.meta.dirname;
 
 // Portada (/) + deck Día 1 (/genui/) + deck Día 2 (/agentes/) + consola (/presenter/) + app de asistentes (/live/)
 export default defineConfig({
+  // Versión de esta publicación: se agrega a los clips (?v=) para que el navegador nunca muestre un video viejo.
+  define: { __CLIPS_V__: JSON.stringify(Date.now().toString(36)) },
   server: {
     fs: {
       deny: ['.env', '.env.*', '*.{crt,pem,key,p12,pfx,cer,der}', '.npmrc', '.yarnrc.yml', '**/.git/**'],
