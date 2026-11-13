@@ -10,7 +10,8 @@ import type { GenerativeModel } from 'firebase/ai';
 import { NS, TALK, hasFirebase } from './config';
 import { SISTEMA, buscar, promptConContexto, type Fuente } from './asistente';
 
-export const MODELO_NUBE = 'gemini-2.5-flash-lite';
+/** Alias que Google mantiene apuntando al Flash-Lite vigente (los nombres con versión se retiran). */
+export const MODELO_NUBE = 'gemini-flash-lite-latest';
 export const LIMITE_NUBE = 5;
 
 const clave = () => `${NS}.nube.${TALK}`;
@@ -51,6 +52,7 @@ export async function* preguntarNube(pregunta: string, signal?: AbortSignal): As
       throw e;
     }));
     const res = await m.generateContentStream(promptConContexto(pregunta, r), { signal });
+    res.response?.catch?.(() => undefined); // si se cancela, la respuesta completa también se rechaza: no es un error
     sumarUso(); // solo cuenta si Gemini respondió
     for await (const c of res.stream) {
       if (signal?.aborted) return;
@@ -60,7 +62,7 @@ export async function* preguntarNube(pregunta: string, signal?: AbortSignal): As
   } catch (err) {
     if (signal?.aborted) throw err;
     // API sin activar, cuota llena o sin permiso: no insistimos en esta visita.
-    if (/firebasevertexai|api-not-enabled|permission|403|429|quota|resource_exhausted|app-check|fetch-error/i.test(String((err as Error)?.message ?? err))) apagada = true;
+    if (/firebasevertexai|api-not-enabled|permission|401|403|404|429|quota|resource_exhausted|app.check|no longer available|not found/i.test(String((err as Error)?.message ?? err))) apagada = true;
     throw err;
   }
 }

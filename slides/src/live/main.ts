@@ -940,7 +940,7 @@ function openAsistente() {
     li.innerHTML = `<p class="q">${esc(m.q)}</p>
       <div class="a"><span class="motor">${m.motor === 'nano' ? '✦ Gemini Nano' : m.motor === 'nube' ? '✦ Gemini' : '📖 De la charla'}</span><div class="txt" data-txt>${m.a ? formatear(m.a) : m.cancelada ? '-' : '<span class="pensando">Pensando…</span>'}</div>
       ${m.cancelada ? '<p class="fine">Cancelada: hiciste otra pregunta.</p>' : ''}
-      ${m.fuentes.length ? `<p class="fuentes">${m.fuentes.map((f) => `<span>Slide ${f.n} · ${esc(f.titulo)}</span>`).join('')}</p>` : ''}
+      ${m.fuentes.length ? `<p class="fuentes">${m.fuentes.filter((f, i, l) => l.findIndex((x) => x.n === f.n) === i).map((f) => `<span>Slide ${f.n} · ${esc(f.titulo)}</span>`).join('')}</p>` : ''}
       ${m.enviada ? '<p class="fine enviada">✓ Enviada a Vanessa</p>' : `<button class="link" type="button" data-enviar>¿No te sirvió? Enviar mi pregunta a Vanessa (+100)</button>`}</div>`;
     li.querySelector('[data-enviar]')?.addEventListener('click', () => void enviarAVanessa(m, li));
     return li;
