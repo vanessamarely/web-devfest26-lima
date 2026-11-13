@@ -17,6 +17,7 @@ import { QUESTIONS, type QuestionId } from '../shared/questions';
 import { REACTIONS, correctCount, getRealtime, podiumKey, winnerCode, type Reaction, type Realtime, type SlideState, type Votes } from '../shared/realtime';
 import { esc } from '../shared/esc';
 import { esOfensiva, isOnTopic } from '../shared/ask';
+import { LIMITE_NUBE, nubeDisponible, preguntarNube, quedanNube } from '../shared/asistente-nube';
 import { buscar, esDeLaCharla, estadoNano, prepararNano, preguntarNano, respuestaSinModelo, sugerencias, type EstadoNano, type Fuente } from '../shared/asistente';
 
 const ICONS = { Brain, Check, Download, FileText, Flame, GitBranch, Heart, MessageCircleQuestion, NotebookPen, Radio, Send, Shuffle, Sparkles, SunMoon, Trophy, Map: MapIcon, X };
@@ -823,7 +824,7 @@ interface Mensaje {
   q: string;
   a: string;
   fuentes: { n: number; titulo: string }[];
-  motor: 'nano' | 'charla';
+  motor: 'nano' | 'nube' | 'charla';
   enviada?: boolean;
   /** se canceló porque la persona hizo otra pregunta */
   cancelada?: boolean;
@@ -883,7 +884,9 @@ function openAsistente() {
     else if (e === 'descargando')
       estadoBox.innerHTML = `<span class="dot"></span> Descargando Gemini Nano… <b>${progreso !== undefined ? Math.round(progreso * 100) + ' %' : ''}</b> Mientras tanto te respondo con lo que dice la charla.`;
     else
-      estadoBox.innerHTML = `<span class="dot"></span> Este dispositivo no tiene Gemini Nano (funciona en Chrome 148+ de computadora). Te respondo con lo que dice la charla.`;
+      estadoBox.innerHTML = nubeDisponible()
+        ? `<span class="dot ok"></span> <b>Gemini</b> en la nube · responde solo con la charla · te quedan <b>${quedanNube()}</b> de ${LIMITE_NUBE} preguntas con IA`
+        : `<span class="dot"></span> Te respondo con lo que dicen los slides de la charla.`;
     estadoBox.querySelector('[data-activar]')?.addEventListener('click', activar);
   };
   const activar = async () => {
@@ -907,7 +910,7 @@ function openAsistente() {
   const pintarMensaje = (m: Mensaje, li: HTMLElement = document.createElement("li")) => {
     li.className = 'msg';
     li.innerHTML = `<p class="q">${esc(m.q)}</p>
-      <div class="a"><span class="motor">${m.motor === 'nano' ? '✦ Gemini Nano' : '📖 De la charla'}</span><div class="txt" data-txt>${m.a ? formatear(m.a) : m.cancelada ? '-' : '<span class="pensando">Pensando…</span>'}</div>
+      <div class="a"><span class="motor">${m.motor === 'nano' ? '✦ Gemini Nano' : m.motor === 'nube' ? '✦ Gemini' : '📖 De la charla'}</span><div class="txt" data-txt>${m.a ? formatear(m.a) : m.cancelada ? '-' : '<span class="pensando">Pensando…</span>'}</div>
       ${m.cancelada ? '<p class="fine">Cancelada: hiciste otra pregunta.</p>' : ''}
       ${m.fuentes.length ? `<p class="fuentes">${m.fuentes.map((f) => `<span>Slide ${f.n} · ${esc(f.titulo)}</span>`).join('')}</p>` : ''}
       ${m.enviada ? '<p class="fine enviada">✓ Enviada a Vanessa</p>' : `<button class="link" type="button" data-enviar>¿No te sirvió? Enviar mi pregunta a Vanessa (+100)</button>`}</div>`;
@@ -941,7 +944,7 @@ function openAsistente() {
     };
     area.value = '';
     $('[data-sug]', dlg).hidden = true;
-    const m: Mensaje = { q, a: '', fuentes: [], motor: estadoIA === 'listo' ? 'nano' : 'charla' };
+    const m: Mensaje = { q, a: '', fuentes: [], motor: estadoIA === 'listo' ? 'nano' : nubeDisponible() ? 'nube' : 'charla' };
     chat.push(m);
     const li = pintarMensaje(m);
     lista.append(li);
@@ -951,9 +954,9 @@ function openAsistente() {
       const r = respuestaSinModelo(q);
       Object.assign(m, { a: r.texto, fuentes: r.fuentes.map(({ n, titulo }: Fuente) => ({ n, titulo })), motor: 'charla' });
     };
-    if (m.motor === 'nano' && esDeLaCharla(buscar(q))) {
+    if (m.motor !== 'charla' && esDeLaCharla(buscar(q))) {
       try {
-        for await (const x of preguntarNano(q, ctrl.signal)) {
+        for await (const x of (m.motor === 'nano' ? preguntarNano : preguntarNube)(q, ctrl.signal)) {
           if (ctrl.signal.aborted) return cancelar();
           if (x.fuentes) m.fuentes = x.fuentes.map(({ n, titulo }) => ({ n, titulo }));
           if (x.trozo) {
@@ -964,12 +967,14 @@ function openAsistente() {
         if (!m.a.trim()) conRespaldo();
       } catch (err) {
         if (ctrl.signal.aborted) return cancelar();
-        console.warn('[asistente] Nano falló, uso el respaldo', err);
+        console.warn(`[asistente] ${m.motor} falló, uso el respaldo`, err);
         conRespaldo();
+        if (!nubeDisponible()) pintarEstado(); // la nube se apagó: el estado lo dice
       }
     } else conRespaldo(); // sin Nano, o la pregunta no es de esta charla: no inventamos
     pintarMensaje(m, li);
     guardarChat();
+    if (estadoIA !== 'listo') pintarEstado(); // actualiza cuántas preguntas con IA quedan
   }
 
   async function enviarAVanessa(m: Mensaje, li: HTMLElement) {
