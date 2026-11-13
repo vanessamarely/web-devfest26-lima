@@ -154,6 +154,15 @@
               "value": "no-cache"
             }
           ]
+        },
+        {
+          "source": "/clips/**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
         }
       ]
     },
