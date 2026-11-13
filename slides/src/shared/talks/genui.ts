@@ -155,7 +155,7 @@ export const SLIDES: SlideContent[] = [
     kind: 'join',
     title: 'Únete a la charla',
     summary: ['Escanea el QR: sigue los slides en tu celular, toma notas, crea tu avatar limeño y juega por el podio.'],
-    notes: 'Que escaneen mientras te presentas. "Hay 3 preguntas: quien acierte rápido sube al podio. Creen su avatar: en la otra charla (Chrome DevTools para agentes) lo pueden traer, cambiarle la ropa y suma +200. Y si les queda una duda, el botón Pregunta tiene un asistente con Gemini Nano que conoce esta charla."',
+    notes: 'Que escaneen mientras te presentas. "Hay 3 preguntas: quien acierte rápido sube al podio. Creen su avatar: en la otra charla (Chrome DevTools para agentes) lo pueden traer, cambiarle la ropa y suma +200. Y si les queda una duda, el botón Pregúntale tiene un asistente que conoce esta charla."',
     time: '0:40',
   }),
   S({

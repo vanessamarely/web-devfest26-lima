@@ -310,7 +310,7 @@ main { max-width: 520px; margin: 0 auto; min-height: 60dvh; }
 .return-note [data-diff] { font-weight: 500; }
 .return-note .link { justify-self: start; }
 
-/* Pregúntale a la charla (asistente con Gemini Nano) */
+/* Pregúntale a la charla (Gemini Nano en computadoras, Gemini en la nube en celulares, o los slides) */
 .asistente-sheet { width: min(560px, calc(100vw - 16px)); height: min(86dvh, 760px); margin: auto auto 8px; }
 .asis { display: grid; grid-template-rows: auto auto auto 1fr auto auto; gap: 10px; padding: 16px; height: 100%; }
 .asis-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
