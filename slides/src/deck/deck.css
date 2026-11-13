@@ -1035,3 +1035,18 @@ section[data-deck-active] .pool-list .win { animation: scrollwin 6s ease-in-out 
   .terrace { margin-right: 0 !important; }
   .loop .st::after { content: none; }
 }
+
+/* Clips reales de Chrome DevTools: 2 × 2, video a la izquierda y texto a la derecha. Clic: el clip ocupa el slide. */
+.dt-grid { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 22px; min-height: 0; align-content: start; }
+.dt-clip { margin: 0; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 12px; align-items: center; min-width: 0; cursor: zoom-in; }
+.dt-clip video { width: 100%; aspect-ratio: 780 / 560; max-height: 190px; object-fit: contain; display: block; border: var(--lw) solid var(--line); border-radius: var(--r-md); background: #fff; }
+.dt-clip figcaption { display: grid; gap: 4px; align-content: center; font-size: 15px; line-height: 1.3; min-width: 0; }
+.dt-clip figcaption .dn { justify-self: start; }
+.dt-clip figcaption b { font-size: 17px; line-height: 1.2; }
+.dt-clip figcaption > span:last-child { opacity: 0.85; }
+.dt-clip.zoom { position: absolute; inset: 0; z-index: 5; grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); background: var(--surface, #fff); cursor: zoom-out; }
+.dt-clip.zoom video { width: 100%; height: 100%; min-height: 0; max-height: none; aspect-ratio: auto; object-fit: contain; border: 0; }
+:root[data-ratio='4-3'] .dt-clip { grid-template-columns: 1fr; gap: 6px; }
+:root[data-ratio='4-3'] .dt-clip video { max-height: 150px; }
+:root[data-ratio='4-3'] .dt-clip figcaption > span:last-child { display: none; }
+@media (max-width: 760px) { .dt-grid { grid-template-columns: 1fr; } .dt-clip { grid-template-columns: 1fr; } .dt-clip video { max-height: none; } }

@@ -3,7 +3,7 @@
 //  · "tools": lista y ejecuta las tools de WebMCP.
 // Cada paso queda en la línea de tiempo del Panel del agente (y en la pista "Mesa · Agente").
 import { snapshotTexto, tomarSnapshot, type Nodo } from './snapshot';
-import { TOOLS, ejecutar } from './tools';
+import { TOOLS, ejecutar, llamar } from './tools';
 
 export interface Paso {
   t: number;
@@ -109,7 +109,7 @@ export async function agenteTools(log: Log): Promise<boolean> {
   const base = { restaurante: 'kaiyo', fecha: '2026-11-14', personas: 4, titular: 'Vanessa' };
   let hora = '20:00';
   for (let intento = 1; intento <= 3; intento++) {
-    const out = await ejecutar('reservar_mesa', { ...base, hora });
+    const out = await llamar('reservar_mesa', { ...base, hora });
     if (!out.startsWith('Error')) {
       log({ accion: 'execute_webmcp_tool', detalle: `reservar_mesa (${hora}) → ${out}`, tipo: 'ok' });
       return true;

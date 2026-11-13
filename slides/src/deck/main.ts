@@ -293,6 +293,15 @@ menu.addEventListener('click', (e) => {
   }
 });
 
+// Clips de DevTools: un clic agranda el clip a todo el slide; otro clic lo devuelve.
+document.addEventListener('click', (e) => {
+  const fig = (e.target as HTMLElement).closest<HTMLElement>('.dt-clip');
+  if (!fig) return;
+  const abierto = fig.classList.contains('zoom');
+  document.querySelectorAll('.dt-clip.zoom').forEach((x) => x.classList.remove('zoom'));
+  if (!abierto) fig.classList.add('zoom');
+});
+
 // ── Clips de la demo: se cargan perezosamente y solo se reproducen en el slide activo ──
 function playClips(slide: HTMLElement) {
   document.querySelectorAll<HTMLVideoElement>('video[data-src]').forEach((v) => {

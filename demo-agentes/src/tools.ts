@@ -118,7 +118,12 @@ export async function ejecutar(name: string, input: Record<string, unknown>): Pr
   return ll.output;
 }
 
-type ModelContext = { registerTool(t: object, o?: { signal?: AbortSignal }): Promise<void> | void };
+type ToolNativa = { name: string };
+type ModelContext = {
+  registerTool(t: object, o?: { signal?: AbortSignal }): Promise<void> | void;
+  getTools?(): Promise<ToolNativa[]>;
+  executeTool?(t: ToolNativa, input: object): Promise<unknown>;
+};
 export const nativo = () => (document as Document & { modelContext?: ModelContext }).modelContext;
 
 /** Registra las tools en WebMCP nativo (si existe). buscar_restaurantes es el formulario declarativo. */
@@ -129,5 +134,29 @@ export async function registrar() {
     if (t.tipo === 'Declarative') continue;
     await mc.registerTool({ name: t.name, description: t.description, inputSchema: t.inputSchema, annotations: t.annotations, execute: (input: Record<string, unknown>) => ejecutar(t.name, input) });
   }
+  registradas = true;
   return true;
+}
+let registradas = false;
+
+/**
+ * Cómo llama el agente a una tool. Con WebMCP nativo pasa por el navegador
+ * (document.modelContext.executeTool): así cada llamada aparece en DevTools → Application → WebMCP → Tool activity.
+ * Sin WebMCP nativo (o si falla), llama directo. La tool declarativa (el formulario) siempre va directo.
+ */
+export async function llamar(name: string, input: Record<string, unknown>): Promise<string> {
+  const mc = nativo();
+  const t = TOOLS.find((x) => x.name === name);
+  if (registradas && mc?.getTools && mc.executeTool && t && t.tipo !== 'Declarative') {
+    try {
+      const tool = (await mc.getTools()).find((x) => x.name === name);
+      if (tool) {
+        const r = await mc.executeTool(tool, input);
+        return typeof r === 'string' ? r : JSON.stringify(r);
+      }
+    } catch (err) {
+      console.warn('[webmcp] executeTool falló, llamo directo', err);
+    }
+  }
+  return ejecutar(name, input);
 }

@@ -463,6 +463,21 @@ export const SLIDES: SlideContent[] = [
     time: '18:15',
   }),
   S({
+    id: 'devtools-real',
+    label: 'Así se ve en DevTools',
+    kind: 'demo',
+    section: S5,
+    title: 'Así se ve en Chrome DevTools',
+    summary: [
+      'Elements → árbol de accesibilidad: el botón hecho con div aparece como generic, sin nombre. Con <button> aparece como button "Reservar mesa".',
+      'Application → WebMCP: la lista de funciones de la página y cada uso del agente, con lo que recibió (Input) y lo que respondió (Output).',
+      'Performance: la IA local sin streaming deja tareas largas en rojo en el hilo principal.',
+      'Lighthouse → Agentic browsing: una categoría nueva que revisa si tu página es fácil de usar para un agente.',
+    ],
+    notes: 'Clips grabados con DevTools real sobre Mesa. Úsalos si la demo en vivo falla, o para repasar rápido (1 min). Si sobra tiempo al final, vuelve aquí mientras la gente responde o mientras se arma el podio.',
+    time: '23:45',
+  }),
+  S({
     id: 'razonar',
     label: 'Fácil de entender',
     kind: 'content',
