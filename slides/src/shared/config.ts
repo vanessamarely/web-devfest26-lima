@@ -78,15 +78,16 @@ const LAST_TALK_KEY = `${NS}.lastTalk`;
 // ── Agenda: ¿qué charla va primero? ───────────────────────────────────────
 // No se sabe de antemano qué día va cada charla. La presentadora lo elige en el deck
 // (menú → Agenda) y queda en Firestore (config/agenda) para todos los celulares.
-// Mientras tanto: ?primera=genui|agentes · lo último guardado en este navegador · VITE_PRIMERA · genui.
+// Orden: ?primera=genui|agentes · VITE_PRIMERA · genui (confirmado: UI generativa es el Día 1).
 const AGENDA_KEY = `${NS}.agenda.primera`;
 const esTalk = (v: unknown): v is TalkId => v === 'genui' || v === 'agentes';
 let primera: TalkId = (() => {
   const p = params.get('primera');
   if (esTalk(p)) return p;
+  // Agenda confirmada: Día 1 UI generativa, Día 2 DevTools para agentes. Se borra cualquier elección vieja
+  // guardada en este navegador para que no le gane al orden confirmado.
   try {
-    const g = localStorage.getItem(AGENDA_KEY);
-    if (esTalk(g)) return g;
+    localStorage.removeItem(AGENDA_KEY);
   } catch {
     /* noop */
   }
@@ -102,11 +103,6 @@ export function setPrimera(t: TalkId) {
   if (!esTalk(t)) return;
   const cambio = t !== primera;
   primera = t;
-  try {
-    localStorage.setItem(AGENDA_KEY, t);
-  } catch {
-    /* noop */
-  }
   marcarOrden();
   if (cambio) dispatchEvent(new CustomEvent('agenda', { detail: t }));
 }

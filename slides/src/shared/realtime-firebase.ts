@@ -1,4 +1,4 @@
-import { GithubAuthProvider, getAuth, linkWithPopup, signInAnonymously, signInWithCredential } from 'firebase/auth';
+import { GithubAuthProvider, getAuth, linkWithPopup, signInAnonymously, signInWithCredential, signInWithPopup } from 'firebase/auth';
 import { Timestamp, addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import { OTHER_SESSION_ID, PRESENTER_GITHUB_ID, SESSION_ID } from './config';
 import { getFirebaseApp } from './firebase';
@@ -231,6 +231,7 @@ export async function createFirebaseRealtime(): Promise<Realtime> {
       }
       try {
         if (current) await linkWithPopup(current, provider);
+        else await signInWithPopup(auth, provider); // sin sesión anónima todavía: entra directo con GitHub
       } catch (err) {
         // Esa cuenta de GitHub ya estaba vinculada a otro uid: entramos con ella.
         const cred = GithubAuthProvider.credentialFromError(err as never);

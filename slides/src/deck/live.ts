@@ -177,6 +177,21 @@ export async function initLive(stage: DeckStage, sections: HTMLElement[]) {
     }
   });
 
+  /** Mensaje claro según el error de Firebase Auth (para saber qué arreglar). */
+  function motivoLogin(code: string): string {
+    const host = location.hostname;
+    const m: Record<string, string> = {
+      'auth/unauthorized-domain': `Firebase no tiene autorizado el dominio ${host}. Agrégalo en Firebase → Authentication → Settings → Authorized domains y vuelve a intentar.`,
+      'auth/popup-blocked': 'Chrome bloqueó la ventana de GitHub. Permite las ventanas emergentes para este sitio (ícono a la derecha de la barra de direcciones) y vuelve a intentar.',
+      'auth/popup-closed-by-user': 'Se cerró la ventana de GitHub antes de terminar. Vuelve a intentar.',
+      'auth/cancelled-popup-request': 'Ya había una ventana de GitHub abierta. Ciérrala y vuelve a intentar.',
+      'auth/operation-not-allowed': 'El proveedor GitHub no está activado en Firebase → Authentication → Sign-in method.',
+      'auth/network-request-failed': 'Sin conexión a internet. Revisa la red y vuelve a intentar.',
+      'auth/account-exists-with-different-credential': 'Ese correo ya entró con otro método. Usa la misma cuenta de GitHub de siempre.',
+    };
+    return m[code] ?? `No se pudo iniciar sesión con GitHub (${code || 'error desconocido'}).`;
+  }
+
   document.addEventListener('deck:present', async () => {
     try {
       const ok = await rt.signInPresenter();
@@ -184,7 +199,7 @@ export async function initLive(stage: DeckStage, sections: HTMLElement[]) {
       if (!presenter) alert('Esta cuenta de GitHub no es la de la presentadora.');
     } catch (err) {
       console.error(err);
-      alert('No se pudo iniciar sesión con GitHub.');
+      alert(motivoLogin((err as { code?: string }).code ?? ''));
     }
     syncPresenterUi();
     if (presenter) {
