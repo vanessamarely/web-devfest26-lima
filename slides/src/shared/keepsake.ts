@@ -2,7 +2,7 @@
 // Se genera en el celular (nada sale del dispositivo) como un HTML autocontenido que se ve
 // bien offline, se puede imprimir a PDF y se comparte como archivo. También hay versión .md.
 import { CHECKLIST, CHECKLIST_TITLE, SLIDES } from './content';
-import { EVENT, PUBLIC_DEMO_URL as DEMO_URL, PUBLIC_SLIDES_URL as SLIDES_URL, REPO_URL, SKILL_URL, SKILL_LABEL, SPEAKER, SPEAKER_HANDLE, TALK_TITLE, TALK_TITLE_ES } from './config';
+import { EVENT, PUBLIC_DEMO_URL as DEMO_URL, PUBLIC_SLIDES_URL as SLIDES_URL, REPO_URL, SKILL_URL, SKILL_LABEL, SPEAKER, SPEAKER_REDES, TALK_TITLE, TALK_TITLE_ES } from './config';
 import { MENSAJES, LEYENDA, avatarSVG, type AvatarOptions } from './avatar';
 import { esc } from './esc';
 
@@ -26,7 +26,7 @@ export function keepsakeSlides(notes: KeepsakeInput['notes']) {
 
 export function keepsakeMarkdown({ nickname, notes, avatar }: KeepsakeInput): string {
   const out: string[] = [];
-  out.push(`# ${TALK_TITLE}`, `_${TALK_TITLE_ES}_`, '', `${EVENT} · ${SPEAKER} (${SPEAKER_HANDLE}) · ${fmtDate()}`);
+  out.push(`# ${TALK_TITLE}`, `_${TALK_TITLE_ES}_`, '', `${EVENT} · ${SPEAKER} · ${SPEAKER_REDES} · ${fmtDate()}`);
   if (nickname) out.push(`Memoria de **${nickname}**`);
   if (avatar) out.push('', `## Mi avatar: ${avatar.name}`, `Mi avatar dice: “${MENSAJES[avatar.mensaje] ?? ''}”`, '', `> ${LEYENDA}`);
   let section = '';
@@ -125,7 +125,7 @@ export function keepsakeHTML({ nickname, notes, avatar }: KeepsakeInput): string
   <header class="card hero">
     <p class="eyebrow">// Memoria de la charla · ${esc(EVENT)}</p>
     <h1>${esc(TALK_TITLE)}</h1>
-    <p class="meta">${esc(TALK_TITLE_ES)} · ${esc(SPEAKER)} ${esc(SPEAKER_HANDLE)} · ${esc(fmtDate())}</p>
+    <p class="meta">${esc(TALK_TITLE_ES)} · ${esc(SPEAKER)} · ${esc(SPEAKER_REDES)} · ${esc(fmtDate())}</p>
     <div class="stats">
       ${nickname ? `<span class="pill yellow">${esc(nickname)}</span>` : ''}
       <span class="pill blue">${keepsakeSlides(notes).length} ideas clave</span>

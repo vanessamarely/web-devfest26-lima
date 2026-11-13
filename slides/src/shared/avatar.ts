@@ -8,7 +8,7 @@
 //
 // Todo se dibuja en el dispositivo con SVG (y canvas para el PNG): sin red, sin fotos.
 // Al muro solo viajan las opciones (pocos bytes); el deck vuelve a dibujar el SVG.
-import { EVENT, SPEAKER, SPEAKER_HANDLE, TALKS, TALK, type TalkId } from './config';
+import { EVENT, SPEAKER, SPEAKER_REDES, TALKS, TALK, type TalkId } from './config';
 
 export interface AvatarOptions {
   piel: number;
@@ -661,7 +661,7 @@ export async function avatarPNG(card: AvatarCard, talk: TalkId = TALK): Promise<
   ctx.fillStyle = '#1e1e1e';
   ctx.fillText(TALKS[talk].title, 104, H - 92, W - 400);
   ctx.fillStyle = '#4b4b4b';
-  ctx.fillText(`${SPEAKER} · ${SPEAKER_HANDLE}`, 104, H - 62);
+  ctx.fillText(`${SPEAKER} · ${SPEAKER_REDES}`, 104, H - 62, W - 400);
   ['#4285f4', '#ea4335', '#f9ab00', '#34a853'].forEach((c, i) => {
     ctx.beginPath();
     ctx.arc(W - 120 - (3 - i) * 34, H - 80, 12, 0, Math.PI * 2);

@@ -5,7 +5,7 @@
 // fuente no tiene (≤, →, ✓…) se traducen a equivalentes legibles.
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage, type RGB } from 'pdf-lib';
 import { CHECKLIST, CHECKLIST_TITLE } from './content';
-import { EVENT, PUBLIC_DEMO_URL as DEMO_URL, PUBLIC_SLIDES_URL as SLIDES_URL, REPO_URL, SKILL_URL, SKILL_LABEL, SPEAKER, SPEAKER_HANDLE, TALK_TITLE, TALK_TITLE_ES } from './config';
+import { EVENT, PUBLIC_DEMO_URL as DEMO_URL, PUBLIC_SLIDES_URL as SLIDES_URL, REPO_URL, SKILL_URL, SKILL_LABEL, SPEAKER, SPEAKER_REDES, TALK_TITLE, TALK_TITLE_ES } from './config';
 import { fmtDate, keepsakeSlides, type KeepsakeInput } from './keepsake';
 import { MENSAJES, LEYENDA, avatarPNGDataUrl } from './avatar';
 
@@ -112,7 +112,7 @@ export async function keepsakePDF({ nickname, notes, avatar }: KeepsakeInput): P
   w.space(4);
   w.text(TALK_TITLE, { font: f.b, size: 22, gap: 1.15 });
   w.text(TALK_TITLE_ES, { font: f.i, size: 12, color: DIM });
-  w.text(`${SPEAKER} ${SPEAKER_HANDLE} · ${fmtDate()}`, { size: 10, color: DIM });
+  w.text(`${SPEAKER} · ${SPEAKER_REDES} · ${fmtDate()}`, { size: 10, color: DIM });
   const list = keepsakeSlides(notes);
   const nNotes = Object.values(notes).filter((n) => n.text.trim()).length;
   w.space(6);

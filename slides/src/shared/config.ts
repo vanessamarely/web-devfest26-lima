@@ -10,6 +10,8 @@ export const PRESENTER_GITHUB_ID = '4331491';
 export const EVENT = 'DevFest Lima 2026';
 export const SPEAKER = 'Vanessa Aristizabal';
 export const SPEAKER_HANDLE = '@vanessamarelycode';
+/** Solo Instagram usa «vanessamarelycode»; las demás redes son «vanessamarely». */
+export const SPEAKER_REDES = 'Instagram @vanessamarelycode · demás redes @vanessamarely';
 /** Prefijo de claves de localStorage / BroadcastChannel (no chocar con otras charlas en el mismo origen). */
 export const NS = 'dflima';
 

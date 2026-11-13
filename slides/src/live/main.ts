@@ -189,6 +189,11 @@ async function boot() {
     .catch(() => undefined);
   if (otherAvatar && !avatar.saved) adoptOther(false);
   render();
+  // Volvemos a "Mis notas" si recargamos por una versión nueva al descargar la memoria.
+  if (sessionStorage.getItem('dflima.abrir') === 'notes' && name) {
+    sessionStorage.removeItem('dflima.abrir');
+    go('notes');
+  }
 }
 
 /** Trae el avatar de la otra charla como punto de partida (luego se le cambian los detalles). */
@@ -551,7 +556,7 @@ function renderWallCta(screen: HTMLElement) {
 function keepsakeInput() {
   return { nickname: name, notes, avatar: avatar.saved ? { name: avatar.name, mensaje: avatar.mensaje, opts: avatar.opts } : null };
 }
-const slug = () => `memoria-devfest-lima-${TALK}${name ? '-' + name.normalize('NFD').replace(/[^\w]+/g, '-').toLowerCase() : ''}`;
+const slug = () => `memoria-devfest-lima-${TALK}${name ? '-' + name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w]+/g, '-').toLowerCase() : ''}`;
 
 function keepsakeButtons() {
   return `<button class="btn wide primary" type="button" data-dl-pdf>${icon(Download, 18)} Descargar memoria (PDF)</button>
@@ -563,9 +568,25 @@ function keepsakeButtons() {
     ${avatar.saved ? `<button class="btn wide" type="button" data-dl-avatar>${icon(Download, 18)} Descargar mi avatar (PNG)</button>` : ''}
     <button class="btn wide ghost" type="button" data-share>${icon(Send, 18)} Compartir</button>`;
 }
-/** PDF con pdf-lib: se carga al pulsar (import dinámico) y se genera en el celular. */
+/**
+ * PDF con pdf-lib (pesa: no va en la carga inicial). Se precarga cuando la app ya está quieta, así
+ * el botón responde al instante y funciona aunque se publique una versión nueva con la app abierta.
+ */
+let pdfModulo: Promise<typeof import('../shared/keepsake-pdf')> | null = null;
+const cargarPDF = () =>
+  (pdfModulo ??= import('../shared/keepsake-pdf').catch((err) => {
+    pdfModulo = null;
+    throw err;
+  }));
+const precargarPDF = () => void cargarPDF().catch(() => undefined);
+if ('requestIdleCallback' in window) requestIdleCallback(precargarPDF, { timeout: 8000 });
+else setTimeout(precargarPDF, 4000);
+
+/** ¿El error es porque se publicó una versión nueva y el archivo viejo ya no existe? */
+const esVersionVieja = (err: unknown) => /dynamically imported module|Importing a module script failed|error loading dynamically/i.test(String((err as Error)?.message ?? err));
+
 async function makePDF(): Promise<Blob> {
-  const { keepsakePDF } = await import('../shared/keepsake-pdf');
+  const { keepsakePDF } = await cargarPDF();
   return keepsakePDF(keepsakeInput());
 }
 function bindKeepsake(root: ParentNode) {
@@ -579,6 +600,13 @@ function bindKeepsake(root: ParentNode) {
       if (msg) msg.textContent = 'Listo: revisa tus descargas.';
     } catch (err) {
       console.error('[memoria] PDF', err);
+      if (esVersionVieja(err)) {
+        // Hay una versión nueva publicada: recargamos (las notas y el avatar están guardados en el celular).
+        if (msg) msg.textContent = 'Hay una versión nueva de la app. Recargando…';
+        sessionStorage.setItem('dflima.abrir', 'notes');
+        setTimeout(() => location.reload(), 900);
+        return;
+      }
       if (msg) msg.textContent = 'No se pudo generar el PDF. Prueba con HTML.';
     } finally {
       btn.disabled = false;
