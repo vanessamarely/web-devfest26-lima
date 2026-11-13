@@ -191,8 +191,7 @@ function armarPanel() {
     ).join('')}</div>
     <div class="x-hud" data-hud></div>
     <div class="x-actions"><button type="button" class="x-go" data-x-generar>Generar</button><button type="button" data-x-precios>Actualizar precios</button><button type="button" data-x-ordenar>Ordenar</button></div>
-    <details class="x-dictado" open><summary>Lo que envía la IA <small data-formato></small></summary><p class="x-ayuda">La respuesta del modelo tal como llega, antes de convertirse en pantalla. Con la regla 2 llega un componente por línea (↵); sin ella, un solo JSON que el código vuelve a leer completo cada vez que llega algo.</p><pre data-dictado></pre></details>
-    <p class="x-tip">Consejo: en DevTools → Performance, pon el procesador 4× más lento y graba. Verás la línea <b>Nido · UI generativa</b>.</p>`;
+    <details class="x-dictado" open><summary>Lo que envía la IA <small data-formato></small></summary><p class="x-ayuda">La respuesta del modelo tal como llega, antes de convertirse en pantalla. Con la regla 2 llega un componente por línea (↵); sin ella, un solo JSON que el código vuelve a leer completo cada vez que llega algo.</p><pre data-dictado></pre></details>`;
   panel.addEventListener('change', (e) => {
     const r = (e.target as HTMLElement).closest<HTMLInputElement>('[data-rule]');
     if (!r) return;
