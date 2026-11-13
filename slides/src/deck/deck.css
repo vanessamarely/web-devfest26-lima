@@ -1107,3 +1107,13 @@ section[data-deck-active] .pool-list .win { animation: scrollwin 6s ease-in-out 
 }
 /* Celular: el texto de arriba de las portadas no pasa por debajo del botón del menú */
 @media (max-width: 640px) { .cover-frame > .eyebrow { padding-right: 56px; } }
+
+/* Slide «Tu agente de código como usuario automatizado»: una función por línea, sin flecha suelta al final */
+.loop .st code { font-size: 12px; line-height: 1.35; overflow-wrap: normal; word-break: normal; }
+.loop .st:last-child::after { content: none; }
+/* Clips: los resultados («✗ no lo encuentra») hacen salto de línea y nunca se salen de su columna */
+.clip-grid > * { min-width: 0; }
+.clip-side .stats { grid-template-columns: 1fr; }
+.clip-side .stat { min-width: 0; }
+.clip-side .stat b { white-space: normal; overflow-wrap: normal; font-size: clamp(17px, 1.75vw, 26px); line-height: 1.15; }
+.clip-points li { overflow-wrap: anywhere; }
