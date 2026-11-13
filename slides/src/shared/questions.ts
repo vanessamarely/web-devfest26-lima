@@ -40,12 +40,12 @@ const BY_TALK: Record<TalkId, Record<QuestionId, Question>> = {
     q1: {
       id: 'q1',
       topic: 'Reserva el espacio',
-      text: 'Una tarjeta generada llega tarde y empuja todo hacia abajo. ¿Qué empeora y cómo se evita?',
+      text: 'La IA todavía está respondiendo. El mapa llega tarde y empuja hacia abajo lo que la persona estaba leyendo. ¿Cómo se evita ese salto?',
       options: [
-        { id: 'a', label: 'El INP; se evita guardando las respuestas del modelo' },
-        { id: 'b', label: 'El CLS; se evita reservando su espacio con el tamaño final antes de que llegue' },
-        { id: 'c', label: 'El LCP; se evita quitando todas las imágenes' },
-        { id: 'd', label: 'Nada: los saltos no se pueden medir' },
+        { id: 'a', label: 'Guardar las respuestas de la IA para la próxima vez' },
+        { id: 'b', label: 'Reservar el espacio del mapa con su tamaño final antes de que llegue' },
+        { id: 'c', label: 'Quitar todas las imágenes de la página' },
+        { id: 'd', label: 'No se puede evitar: la IA siempre responde por partes' },
       ],
     },
     q2: {
@@ -62,12 +62,12 @@ const BY_TALK: Record<TalkId, Record<QuestionId, Question>> = {
     q3: {
       id: 'q3',
       topic: 'Los datos',
-      text: 'Ya llegaron 300 departamentos. ¿Quién debería ordenarlos por precio?',
+      text: 'Ya llegaron los 300 departamentos y la persona toca «Ordenar por precio». ¿Quién debería ordenarlos?',
       options: [
-        { id: 'a', label: 'El modelo de IA, generando otra vez la lista' },
-        { id: 'b', label: 'Tu código, desde un store por id (y si pesa, en un Worker)' },
-        { id: 'c', label: 'El CSS, con order: price' },
-        { id: 'd', label: 'Nadie: se recarga la página' },
+        { id: 'a', label: 'La IA, escribiendo otra vez toda la lista' },
+        { id: 'b', label: 'Tu código, con los datos en un solo lugar (y si es pesado, en un Worker)' },
+        { id: 'c', label: 'El CSS de la página' },
+        { id: 'd', label: 'Nadie: es mejor recargar la página' },
       ],
     },
   },
