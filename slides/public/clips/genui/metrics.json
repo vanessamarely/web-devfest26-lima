@@ -1,12 +1,12 @@
 {
   "espacio.off": "0.39",
   "espacio.on": "0.00",
-  "stream.off.chars": "1,052,640",
-  "stream.on.chars": "2,514",
-  "stream.off.renders": "390",
+  "stream.off.chars": "1,087,742",
+  "stream.on.chars": "2,551",
+  "stream.off.renders": "397",
   "stream.on.renders": "17",
   "reciclar.off": "74,499",
   "reciclar.on": "1,187",
-  "estado.off": "1,496 ms",
+  "estado.off": "1,504 ms",
   "estado.on": "16 ms"
 }

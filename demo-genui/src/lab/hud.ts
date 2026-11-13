@@ -18,6 +18,8 @@ export interface Metricas {
 
 export const metricasVacias = (): Metricas => ({ cls: 0, inp: 0, loaf: 0, loafMax: 0, leidos: 0, renders: 0, creados: 0, dom: 0, ms: 0 });
 
+const now = (v: number | undefined) => v ?? -Infinity;
+
 export function crearLab(root: HTMLElement, onChange: () => void) {
   const m = metricasVacias();
   let dibujar = false;
@@ -26,8 +28,16 @@ export function crearLab(root: HTMLElement, onChange: () => void) {
   capa.setAttribute('aria-hidden', 'true');
   document.body.append(capa);
 
+  // Un mismo lugar se marca como mucho cada 500 ms: si todo se recrea 40 veces por segundo,
+  // se ve un contorno que parpadea, no una pantalla tapada de naranja.
+  const ultimos = new Map<string, number>();
   const marco = (r: DOMRectReadOnly | DOMRect, cls: string, label = '') => {
     if (!dibujar || r.width < 2 || r.height < 2) return;
+    const k = `${cls}:${Math.round(r.left / 8)}:${Math.round(r.top / 8)}:${Math.round(r.width / 8)}:${Math.round(r.height / 8)}`;
+    const ahora = performance.now();
+    if (now(ultimos.get(k)) > ahora - 500) return;
+    ultimos.set(k, ahora);
+    if (ultimos.size > 400) ultimos.clear();
     const b = document.createElement('div');
     b.className = `xray-box ${cls}`;
     Object.assign(b.style, { left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px` });
@@ -77,6 +87,28 @@ export function crearLab(root: HTMLElement, onChange: () => void) {
     /* sin LoAF */
   }
 
+  // Saltos que la persona ve aunque el elemento se haya recreado (con innerHTML, Chrome no los
+  // cuenta como layout-shift porque el nodo es nuevo). Se compara dónde estaba cada sección.
+  const posiciones = new Map<string, { top: number; el: Element }>();
+  const saltosRecreados = () => {
+    const vh = innerHeight;
+    root.querySelectorAll<HTMLElement>('[data-seccion]').forEach((el) => {
+      const id = el.dataset.seccion!;
+      const r = el.getBoundingClientRect();
+      const top = r.top + scrollY; // posición en la página: el scroll no es un salto
+      const antes = posiciones.get(id);
+      posiciones.set(id, { top, el });
+      if (!antes || antes.el === el || r.height < 2) return; // mismo nodo: ya lo mide layout-shift
+      const d = Math.abs(top - antes.top);
+      if (d < 3) return;
+      const visible = Math.max(0, Math.min(vh, r.bottom) - Math.max(0, Math.min(r.top, antes.top - scrollY)));
+      if (!visible) return;
+      const valor = Math.min(1, visible / vh) * Math.min(1, d / vh);
+      m.cls += valor;
+      marco(r, 'shift', `salto +${valor.toFixed(3)}`);
+    });
+  };
+
   new MutationObserver((records) => {
     for (const r of records)
       r.addedNodes.forEach((n) => {
@@ -85,6 +117,7 @@ export function crearLab(root: HTMLElement, onChange: () => void) {
         if (dibujar && !n.closest('.lista-scroll')) marco(n.getBoundingClientRect(), 'nuevo');
       });
     m.dom = root.getElementsByTagName('*').length;
+    saltosRecreados();
     changed();
   }).observe(root, { childList: true, subtree: true });
 
@@ -92,6 +125,7 @@ export function crearLab(root: HTMLElement, onChange: () => void) {
     m,
     reiniciar() {
       Object.assign(m, metricasVacias());
+      posiciones.clear();
       m.dom = root.getElementsByTagName('*').length;
       changed();
     },

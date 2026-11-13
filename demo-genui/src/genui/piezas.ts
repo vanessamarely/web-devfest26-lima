@@ -58,7 +58,7 @@ export function filaHTML(d: DepaLite, i: number): string {
     <span class="fila-n">${i + 1}</span>
     <span class="fila-img" style="background:${fachadas[d.foto % fachadas.length]}"></span>
     <span class="fila-t"><b>${esc(d.titulo)}</b><small>${esc(d.distrito)} · ${d.m2} m² · ${d.dorms} dorm</small></span>
-    <span class="fila-mar">${d.mar.toLocaleString('es-PE')} m</span>
+    <span class="fila-mar">${d.mar.toLocaleString('es-PE')} m del mar</span>
     <span class="precio">${soles(d.precio)}</span>
   </div>`;
 }

@@ -191,6 +191,7 @@ export class Reciclador {
       fila.className = 'fila';
       fila.setAttribute('role', 'listitem');
       fila.style.position = 'absolute';
+      fila.style.top = '0'; // anclada arriba: translateY la lleva a su lugar (si no, queda debajo del espaciador)
       sc.append(fila);
       this.pool.push(fila);
     }

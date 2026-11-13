@@ -43,6 +43,8 @@ let rondaPrecios = 0;
 let dictado = '';
 
 const lab = crearLab(resultados, () => pintarHud());
+// La carga de la página (fuentes, toolbar) no es parte de la demo: el CLS arranca en 0.
+addEventListener('load', () => setTimeout(() => fase === 'listo' && !estado.plano && lab.reiniciar(), 400));
 const reciclador = new Reciclador(resultados, libreta, {
   get reserva() {
     return reglas.espacio;
@@ -159,11 +161,24 @@ async function ordenar() {
 }
 
 // ── Toolbar del producto ────────────────────────────────────────────────
+/** Qué partes ya llegaron, en el orden en que las manda la IA (para entender qué pasa mientras escribe). */
+function avance(): string {
+  const ok = (v: boolean) => (v ? '✓' : '…');
+  const total = 300;
+  return [
+    `resumen ${ok(Boolean(estado.resumen))}`,
+    `mapa ${ok(Boolean(estado.mapa))}`,
+    `tarjetas ${estado.destacados.length}/6`,
+    `gráfico ${ok(Boolean(estado.grafico))}`,
+    `lista ${estado.lista?.ids.length ?? 0}/${total}`,
+  ].join(' · ');
+}
+
 function pintarToolbar() {
   const tb = $('.toolbar');
   tb.hidden = !estado.plano && !estado.resumen && fase === 'listo';
   const st = $('[data-estado]');
-  st.innerHTML = fase === 'escribiendo' ? '<span class="dots"></span> Nido está armando tus resultados…' : fase === 'ordenando' ? '<span class="dots"></span> Ordenando 300 departamentos…' : `✓ Listo${lab.m.ms ? ` en ${(lab.m.ms / 1000).toFixed(1)} s` : ''}`;
+  st.innerHTML = fase === 'escribiendo' ? `<span class="dots"></span> Nido está armando tus resultados… <small class="avance">${avance()}</small>` : fase === 'ordenando' ? '<span class="dots"></span> Ordenando 300 departamentos…' : `✓ Listo${lab.m.ms ? ` en ${(lab.m.ms / 1000).toFixed(1)} s` : ''}`;
 }
 
 // ── Panel Rayos X ───────────────────────────────────────────────────────
@@ -201,6 +216,7 @@ function armarPanel() {
 
 const fmt = (n: number) => n.toLocaleString('es-PE');
 function pintarHud() {
+  if (fase === 'escribiendo') pintarToolbar(); // el avance de cada parte
   const m = lab.m;
   const hud = panel.querySelector('[data-hud]');
   const color = (bad: boolean, warn = false) => (bad ? 'bad' : warn ? 'warn' : 'good');
