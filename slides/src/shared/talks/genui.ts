@@ -492,7 +492,7 @@ export const SLIDES: SlideContent[] = [
       'Prende rayos X (tecla X), apaga las 4 reglas y genera: mira saltos, contadores y el INP.',
       'Prende una regla a la vez y vuelve a generar con el mismo pedido.',
     ],
-    notes: 'Guion (6 min): 1) Botón "Todo roto", CPU 4× en DevTools, generar "departamento de 2 dormitorios en Barranco con vista al mar". 2) Regla 1 → generar (CLS). 3) Regla 2 → generar (caracteres y veces que dibuja). 4) Regla 3 → "Actualizar precios" (elementos creados). 5) "Ordenar por precio/m²" con regla 4 apagada y prendida (INP). Si algo falla: los clips de cada capítulo.',
+    notes: 'Guion (6 min): 1) Rayos X (tecla X), botón "Todo roto", generar "departamento de 2 dormitorios en Barranco con vista al mar". 2) Regla 1 → generar (CLS). 3) Regla 2 → generar (caracteres y veces que dibuja). 4) Regla 3 → "Actualizar precios" (elementos creados). 5) "Ordenar por precio/m²" con regla 4 apagada y prendida (INP). Si algo falla: los clips de cada capítulo.',
     time: '19:15',
   }),
   S({
