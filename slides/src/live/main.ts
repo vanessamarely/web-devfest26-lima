@@ -879,7 +879,7 @@ function openAsistente() {
   dlg.setAttribute('aria-labelledby', 'asis-t');
   dlg.innerHTML = `<div class="asis">
     <div class="asis-head"><h2 id="asis-t">${icon(Sparkles, 22)} Pregúntale a la charla</h2><button class="icon-btn" type="button" data-close aria-label="Cerrar">${icon(X, 20)}</button></div>
-    <p class="fine">Respondo dudas sobre <b>${esc(TALK_TITLE)}</b> con el contenido de la charla. Tu pregunta no sale de tu dispositivo.</p>
+    <p class="fine">Respondo dudas sobre <b>${esc(TALK_TITLE)}</b> con el contenido de la charla.</p>
     <div class="ia-estado" data-ia-estado role="status"></div>
     <ol class="chat" data-chat aria-live="polite"></ol>
     <div class="chips sug" data-sug></div>
@@ -913,8 +913,8 @@ function openAsistente() {
       estadoBox.innerHTML = `<span class="dot"></span> Descargando Gemini Nano… <b>${progreso !== undefined ? Math.round(progreso * 100) + ' %' : ''}</b> Mientras tanto te respondo con lo que dice la charla.`;
     else
       estadoBox.innerHTML = nubeDisponible()
-        ? `<span class="dot ok"></span> <b>Gemini</b> en la nube · responde solo con la charla · te quedan <b>${quedanNube()}</b> de ${LIMITE_NUBE} preguntas con IA`
-        : `<span class="dot"></span> Te respondo con lo que dicen los slides de la charla.`;
+        ? `<span class="dot ok"></span> <b>Gemini</b> en la nube · responde solo con la charla · tu pregunta se envía a Gemini, sin tu apodo · te quedan <b>${quedanNube()}</b> de ${LIMITE_NUBE} preguntas con IA`
+        : `<span class="dot"></span> Te respondo con lo que dicen los slides de la charla. Tu pregunta no sale de tu celular.`;
     estadoBox.querySelector('[data-activar]')?.addEventListener('click', activar);
   };
   const activar = async () => {
