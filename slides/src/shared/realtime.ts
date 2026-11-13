@@ -55,7 +55,7 @@ export type Reaction = 'fire' | 'heart' | 'mind' | 'ask';
 export const REACTIONS: Record<Reaction, { label: string; color: string }> = {
   fire: { label: 'Fuego', color: '#ea4335' },
   heart: { label: 'Me gusta', color: '#ff7daf' },
-  mind: { label: 'Mente volada', color: '#4285f4' },
+  mind: { label: '¡Wow!', color: '#4285f4' },
   ask: { label: 'Tengo una pregunta', color: '#34a853' },
 };
 

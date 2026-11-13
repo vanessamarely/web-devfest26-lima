@@ -20,7 +20,7 @@
     --ink: #f0f0f0;
     --ink-dim: #c4c4c4;
     --line: #f0f0f0;
-    --p-blue: #2d4a55; --p-green: #2f4a33; --p-yellow: #54472a; --p-red: #553336;
+    --p-blue: #1f5566; --p-green: #275e33; --p-yellow: #6b5418; --p-red: #6e2c33;
   }
 }
 * { box-sizing: border-box; }
@@ -72,7 +72,10 @@ main { max-width: 520px; margin: 0 auto; min-height: 60dvh; }
 .btn.primary { background: var(--ink); color: var(--bg); } /* tinta sobre fondo: ≈16:1 en claro y oscuro */
 .btn.ghost { background: transparent; }
 .btn.wide { width: 100%; }
-.btn:disabled { opacity: 0.5; }
+.btn:disabled { opacity: 0.75; }
+/* En oscuro, un botón desactivado sigue legible */
+:root[data-theme='dark'] .btn:disabled { opacity: 1; background: #3a3a3a; color: #d6d6d6; border-color: #5a5a5a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .btn:disabled { opacity: 1; background: #3a3a3a; color: #d6d6d6; border-color: #5a5a5a; } }
 .icon-btn { width: 40px; height: 40px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); display: grid; place-items: center; cursor: pointer; }
 
 .pocket { display: flex; gap: 10px; align-items: flex-start; padding: 14px; border-radius: 16px; background: var(--p-yellow); }
@@ -217,7 +220,7 @@ main { max-width: 520px; margin: 0 auto; min-height: 60dvh; }
 :root[data-theme='dark'] {
   color-scheme: dark;
   --bg: #1e1e1e; --surface: #2a2a2b; --ink: #f0f0f0; --ink-dim: #c4c4c4; --line: #f0f0f0;
-  --p-blue: #2d4a55; --p-green: #2f4a33; --p-yellow: #54472a; --p-red: #553336;
+  --p-blue: #1f5566; --p-green: #275e33; --p-yellow: #6b5418; --p-red: #6e2c33;
 }
 :root {
   /* cenefa limeña: olas del Pacífico sobre colores de Google */

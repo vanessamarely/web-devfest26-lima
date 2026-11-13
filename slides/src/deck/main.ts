@@ -84,11 +84,18 @@ sections.forEach((s, i) => {
   );
 });
 
+// ── Vista: presentadora (?presenter) o público (la URL que ve todo el mundo) ──
+// El público ve un menú simple: sin consola, otra charla, agenda, proporción, alto contraste ni QR por slide.
+const VISTA_PRESENTADORA = new URLSearchParams(location.search).has('presenter');
+document.documentElement.dataset.vista = VISTA_PRESENTADORA ? 'presentadora' : 'publico';
+const soloPresentadora = (html: string) => (VISTA_PRESENTADORA ? html : '');
+
 // ── QR pequeño para unirse en cada slide (para quien llega tarde) ─────
 // Esquina inferior izquierda, simétrico al logo de GDG. No va donde ya hay un QR grande.
 // Tecla J: mostrar / ocultar (se recuerda en este navegador).
 // Sin QR pequeño donde ya hay un QR grande (portada, únete, demos, gracias).
 sections.forEach((s) => {
+  if (!VISTA_PRESENTADORA) return; // solo en la pantalla de la presentadora
   if (s.classList.contains('cover') || s.querySelector('[data-qr]')) return;
   s.insertAdjacentHTML('beforeend', '<div class="join-notch" aria-hidden="true"><div class="join-qr" data-qr="live"></div><span>Únete</span></div>');
 });
@@ -208,25 +215,25 @@ let current = Math.max(0, sections.findIndex((s) => s.hasAttribute('data-deck-ac
 const ratioLabel = (m: RatioMode) => (m === 'auto' ? ['Auto', 'según la ventana'] : m === 'event' ? ['Extendida', '1680×672 · bandas'] : [RATIOS[m].label, RATIOS[m].hint]);
 menu.innerHTML = `
   <div class="group">Enlaces</div>
-  <a href="${withSessionParams('/presenter/')}" target="_blank" rel="noreferrer">Consola de la presentadora <kbd>P</kbd></a>
+  ${soloPresentadora(`<a href="${withSessionParams('/presenter/')}" target="_blank" rel="noreferrer">Consola de la presentadora <kbd>P</kbd></a>`)}
   <a href="${publicLiveUrl()}" target="_blank" rel="noreferrer">App de asistentes <i data-lucide="arrow-up-right"></i></a>
   <a href="${DEMO_URL}" target="_blank" rel="noreferrer">Demo: ${META.demoName} <i data-lucide="arrow-up-right"></i></a>
-  <a href="${withSessionParams(TALKS[OTHER_TALK].deckPath).replace(/talk=\w+&?/, '')}">Ir a la otra charla: <span data-otra-dia>${TALKS[OTHER_TALK].day}</span> <i data-lucide="arrow-up-right"></i></a>
-  <div class="group">Agenda · ¿qué charla va primero?</div>
-  <div class="ratio-row agenda-row"><button type="button" data-primera="genui">Primero<small>UI generativa</small></button><button type="button" data-primera="agentes">Primero<small>DevTools para agentes</small></button></div>
+  ${soloPresentadora(`<a href="${withSessionParams(TALKS[OTHER_TALK].deckPath).replace(/talk=\w+&?/, '')}">Ir a la otra charla: <span data-otra-dia>${TALKS[OTHER_TALK].day}</span> <i data-lucide="arrow-up-right"></i></a>`)}
   <a href="${REPO_URL}" target="_blank" rel="noreferrer">Repositorio <i data-lucide="arrow-up-right"></i></a>
+  ${soloPresentadora(`<div class="group">Agenda · ¿qué charla va primero?</div>
+  <div class="ratio-row agenda-row"><button type="button" data-primera="genui">Primero<small>UI generativa</small></button><button type="button" data-primera="agentes">Primero<small>DevTools para agentes</small></button></div>
   <div class="group">Proporción de pantalla <kbd><span data-ratio-state></span> · A</kbd></div>
   <div class="ratio-row">${MODES.map((m) => {
     const [l, h] = ratioLabel(m);
     return `<button type="button" data-ratio-pick="${m}">${l}<small>${h}</small></button>`;
-  }).join('')}</div>
+  }).join('')}</div>`)}
   <div class="group">Vista</div>
   <button type="button" data-act="theme">Modo claro / oscuro <kbd>L</kbd></button>
-  <button type="button" data-act="contrast">Alto contraste (proyector) <kbd>H</kbd></button>
+  ${soloPresentadora('<button type="button" data-act="contrast">Alto contraste (proyector) <kbd>H</kbd></button>')}
   <button type="button" data-act="fs">Pantalla completa <kbd>F</kbd></button>
   <button type="button" data-act="rail">Panel de miniaturas <kbd>S</kbd></button>
-  <button type="button" data-act="joinqr">QR para unirse en cada slide <kbd>J</kbd></button>
-  <button type="button" data-act="present" data-presenter-only>Presentar en vivo (GitHub)</button>
+  ${soloPresentadora('<button type="button" data-act="joinqr">QR para unirse en cada slide <kbd>J</kbd></button>')}
+  ${soloPresentadora('<button type="button" data-act="present" data-presenter-only>Presentar en vivo (GitHub)</button>')}
   <button type="button" data-act="answers" data-presenter-ui hidden>Cargar respuestas del podio… <kbd data-answers-status></kbd></button>
   <button type="button" data-act="questions" data-presenter-ui hidden>Preguntas del público <kbd><span data-q-count>0</span> · Q</kbd></button>
   <button type="button" data-act="wipe" data-presenter-ui hidden>Vaciar sesión en vivo…</button>
@@ -337,14 +344,14 @@ addEventListener('keydown', (e) => {
   const k = e.key.toLowerCase();
   if (k === 'escape' && !menu.hidden) closeMenu();
   if (k === 'l') setTheme(!isDark());
-  if (k === 'h') toggleContrast();
+  if (k === 'h' && VISTA_PRESENTADORA) toggleContrast();
   if (k === 'f') toggleFullscreen();
   if (k === 's') toggleRail();
-  if (k === 'a') ratio.cycle();
-  if (k === 'e') ratio.toggleEvent();
+  if (k === 'a' && VISTA_PRESENTADORA) ratio.cycle();
+  if (k === 'e' && VISTA_PRESENTADORA) ratio.toggleEvent();
   if (k === 'm') (menu.hidden ? openMenu : closeMenu)();
-  if (k === 'j') toggleJoinQr();
-  if (k === 'p') open(withSessionParams('/presenter/'), `${NS}-presenter`);
+  if (k === 'j' && VISTA_PRESENTADORA) toggleJoinQr();
+  if (k === 'p' && VISTA_PRESENTADORA) open(withSessionParams('/presenter/'), `${NS}-presenter`);
 });
 
 // ── Proporción de pantalla (4:3 · 16:10 · 16:9 · 21:9 · extendida) ───

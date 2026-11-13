@@ -519,8 +519,11 @@ export async function initLive(stage: DeckStage, sections: HTMLElement[]) {
   };
 
   // Oleadas de reacciones → efectos en pantalla (avatar corriendo, parapente, sol de Lima).
-  const bursts = createBursts(() => players.length);
-  Object.assign(window, { deckBurst: (k: Reaction) => bursts.show(k) });
+  const bursts = createBursts(
+    () => players.length,
+    () => avatars.filter((a) => !a.hidden).map((a) => a.opts),
+  );
+  Object.assign(window, { deckBurst: (k: Reaction) => bursts.show(k), deckFiesta: () => bursts.fiesta() });
   rt.onReaction((r, uid) => {
     bursts.add(r);
     if (uid && r !== 'ask' && (part.reactions[uid] ?? 0) < 10) {
