@@ -518,15 +518,16 @@ function renderPodium(screen: HTMLElement) {
         ? `<p class="medal-big" aria-hidden="true">${MEDALS[pos]}</p>
            <h1>¡Entraste al podio, ${esc(name)}!</h1>
            <p class="place-chip">${PLACES[pos]} · ${me!.score.toLocaleString('es-PE')} puntos</p>
-           ${myAvatar ? `<div class="winner-avatar">${myAvatar}</div>` : ''}
+           ${myAvatar ? `<div class="winner-avatar" role="img" aria-label="Tu avatar bailando">${myAvatar}<span class="notas" aria-hidden="true"><i>🎉</i><i>🎶</i><i>✨</i></span></div>` : `<button class="btn wide" type="button" data-go-avatar>${icon(Sparkles, 18)} Crea tu avatar y míralo bailar</button>`}
            <p>Acércate al escenario y muestra este código:</p><p class="code">${myCode}</p>`
         : pos >= 3
-          ? `<h1>¡Quedaste en el puesto ${pos + 1}!</h1><p class="muted">Estás en el top 10 con ${me!.score.toLocaleString('es-PE')} puntos. ¡Bacán!</p>`
+          ? `<h1>¡Quedaste en el puesto ${pos + 1}!</h1>${myAvatar ? `<div class="winner-avatar suave" role="img" aria-label="Tu avatar celebrando">${myAvatar}<span class="notas" aria-hidden="true"><i>👏</i><i>✨</i><i>🎶</i></span></div>` : ''}<p class="muted">Estás en el top 10 con ${me!.score.toLocaleString('es-PE')} puntos. ¡Muy bien!</p>`
           : `<h1>¡Gracias por jugar!</h1><p class="muted">Acertaste ${correctCount(myVotes, live?.answers ?? {})} de 3. Para entrar al podio hay que acertar al menos una; los bonos suben posiciones. El podio está en la pantalla.</p>`
     }
     ${podium.length ? `<ol class="podium-list">${podium.slice(0, 5).map((p, i) => `<li ${i === pos ? 'data-me' : ''}><span class="pl-avatar">${p.opts ? avatarSVG(p.opts, p.name) : avatarSilhouette()}</span><span class="pl-name">${i + 1}. ${esc(p.name)}</span><b>${p.score.toLocaleString('es-PE')}</b></li>`).join('')}</ol>` : '<p class="muted">Esperando el podio…</p>'}
     <p class="fine">Tu código: <b>${myCode}</b></p>
   </section>`;
+  screen.querySelector('[data-go-avatar]')?.addEventListener('click', () => go('avatar'));
   // Vibra una sola vez cuando entras al podio.
   if (onPodium && celebratedPos !== pos) {
     celebratedPos = pos;
@@ -906,7 +907,7 @@ function openAsistente() {
   const pintarMensaje = (m: Mensaje, li: HTMLElement = document.createElement("li")) => {
     li.className = 'msg';
     li.innerHTML = `<p class="q">${esc(m.q)}</p>
-      <div class="a"><span class="motor">${m.motor === 'nano' ? '✦ Gemini Nano' : '📖 De la charla'}</span><div class="txt" data-txt>${m.a ? formatear(m.a) : m.cancelada ? '—' : '<span class="pensando">Pensando…</span>'}</div>
+      <div class="a"><span class="motor">${m.motor === 'nano' ? '✦ Gemini Nano' : '📖 De la charla'}</span><div class="txt" data-txt>${m.a ? formatear(m.a) : m.cancelada ? '-' : '<span class="pensando">Pensando…</span>'}</div>
       ${m.cancelada ? '<p class="fine">Cancelada: hiciste otra pregunta.</p>' : ''}
       ${m.fuentes.length ? `<p class="fuentes">${m.fuentes.map((f) => `<span>Slide ${f.n} · ${esc(f.titulo)}</span>`).join('')}</p>` : ''}
       ${m.enviada ? '<p class="fine enviada">✓ Enviada a Vanessa</p>' : `<button class="link" type="button" data-enviar>¿No te sirvió? Enviar mi pregunta a Vanessa (+100)</button>`}</div>`;

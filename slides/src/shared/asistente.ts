@@ -92,7 +92,40 @@ export interface Resultado {
 }
 
 /** Fragmentos más relevantes (BM25 simplificado + sinónimos + título con más peso). */
+/** Preguntas generales («explícame el tema», «¿de qué trata?»): no nombran nada concreto de la charla. */
+const GENERAL = /\b(explica|explicame|explicar|explicas|resum|resumen|de que (trata|va|habla|se trata)|tema|idea (principal|central)|no entend|en pocas palabras|que aprend|puntos clave|lo mas importante|las reglas|las 4|las cuatro|para que sirve (esto|la charla)|introduccion|panorama)/;
+export const esGeneral = (q: string) => GENERAL.test(norm(q));
+
+/** Los slides que cuentan la charla completa, en orden: idea, mapa y checklist. */
+const PANORAMA: Record<string, string[]> = {
+  genui: ['que-es-genui', 'la-obra', 'reglas-obra', 'checklist'],
+  agentes: ['dos-visitantes', 'cuatro-preguntas', 'devtools-agentes', 'checklist'],
+};
+
+function panorama(k: number): Resultado[] {
+  const docs = corpus();
+  const ids = PANORAMA[TALK] ?? [];
+  const out = ids.map((id, i) => ({ fuente: docs.find((d) => d.id === id)!, puntaje: 5 - i * 0.5 })).filter((r) => r.fuente).slice(0, k);
+  return Object.assign(out, { cobertura: 1 });
+}
+
+/** Palabras que piden «explícame» pero no dicen de qué: no cuentan para buscar. */
+const DE_PEDIDO = new Set(
+  'explica explicame explicar explicas explicalo resume resumen resumelo resumeme tema temas idea ideas principal central trata va habla entendi entiendo entender pocas palabras aprendi aprender punto puntos clave importante general introduccion panorama todo bien otra vez'
+    .split(' ')
+    .map((w) => (w.length > 4 ? w.replace(/(es|s)$/, '') : w)),
+);
+
 export function buscar(pregunta: string, k = 4): Resultado[] {
+  if (esGeneral(pregunta)) {
+    const resto = palabras(pregunta).filter((w) => !DE_PEDIDO.has(w));
+    if (!resto.length) return panorama(k); // «explícame el tema» sin decir cuál: toda la charla
+    return buscarTexto(resto.join(' '), k); // «explícame el NDJSON»: va a su slide
+  }
+  return buscarTexto(pregunta, k);
+}
+
+function buscarTexto(pregunta: string, k: number): Resultado[] {
   const docs = corpus();
   const q = palabras(pregunta);
   const exp = new Map<string, number>();
@@ -132,6 +165,7 @@ export const SISTEMA = () =>
   `Eres el asistente de la charla «${META.title}» de ${SPEAKER} en DevFest Lima 2026. ` +
   'Respondes dudas de las personas del público SOLO con la información de la charla que te doy como contexto. ' +
   'Responde en español, claro y breve (máximo 4 frases o 4 viñetas), con ejemplos de la charla cuando ayuden. ' +
+  'Si te piden explicar el tema en general, resume las ideas principales del contexto en orden, con palabras simples. ' +
   'Si el contexto no alcanza para responder, dilo con honestidad y sugiere enviar la pregunta a Vanessa. ' +
   'No inventes APIs, cifras ni enlaces. No respondas temas ajenos a la charla.';
 
@@ -145,6 +179,10 @@ export function promptConContexto(pregunta: string, r: Resultado[]): string {
 export function respuestaSinModelo(pregunta: string): { texto: string; fuentes: Fuente[] } {
   const r = buscar(pregunta, 3);
   if (!esDeLaCharla(r)) return { texto: 'No encontré eso en esta charla. Puedes enviarle la pregunta a Vanessa y la responde al final.', fuentes: [] };
+  if (esGeneral(pregunta) && (r as Resultado[] & { cobertura?: number }).cobertura === 1 && r[0].fuente.id === (PANORAMA[TALK] ?? [])[0]) {
+    const lineas = r.map((x) => `• ${SLIDES.find((s) => s.id === x.fuente.id)?.summary[0] ?? x.fuente.titulo}`);
+    return { texto: [`La charla «${META.title}» en pocas palabras:`, ...lineas].join('\n'), fuentes: r.map((x) => x.fuente) };
+  }
   const s = SLIDES.find((x) => x.id === r[0].fuente.id);
   const puntos = (s?.summary ?? [r[0].fuente.texto]).slice(0, 3);
   const extra = r.slice(1, 2).map((x) => `También se habla de esto en «${x.fuente.titulo}».`);

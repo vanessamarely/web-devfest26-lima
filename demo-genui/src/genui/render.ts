@@ -57,7 +57,7 @@ function contenidoHTML(e: Estado, libreta: Libreta, tipo: TipoPieza, reserva: bo
 }
 
 const cabeceraLista = (e: Estado) =>
-  `<div class="lista-head"><h2 class="sec-h">Todos los resultados <small>${e.lista!.ids.length} depas</small></h2></div>`;
+  `<div class="lista-head"><h2 class="sec-h">Todos los resultados <small>${e.lista!.ids.length} departamentos</small></h2></div>`;
 
 /** ❌ Demoler: toda la vista con innerHTML, en cada render. */
 export function demoler(root: HTMLElement, e: Estado, libreta: Libreta, { reserva }: Opciones) {
@@ -179,7 +179,7 @@ export class Reciclador {
     const cambio = orden !== this.listaIds;
     this.listaIds = orden;
     (this.scroller.firstElementChild as HTMLElement).style.height = `${orden.length * FILA}px`;
-    sec.querySelector('.lista-head small')!.textContent = `${orden.length} depas`;
+    sec.querySelector('.lista-head small')!.textContent = `${orden.length} departamentos`;
     this.filas(cambio);
   }
 

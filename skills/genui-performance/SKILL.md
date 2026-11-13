@@ -1,11 +1,11 @@
 ---
 name: genui-performance
-description: Audit and fix the performance of generative UI (interfaces an LLM streams as components) — layout shifts while content streams in, main-thread jank from re-parsing partial JSON, DOM churn from innerHTML re-renders, slow interactions from sorting/filtering in the main thread. Use when the user builds AI-generated or streamed UI (chat with components, AI search results, agent dashboards) and mentions CLS, INP, LCP, streaming, NDJSON, partial JSON, skeletons, virtualization, DOM recycling, state stores or "the page freezes while the AI answers".
+description: Audit and fix the performance of generative UI (interfaces an LLM streams as components): layout shifts while content streams in, main-thread jank from re-parsing partial JSON, DOM churn from innerHTML re-renders, slow interactions from sorting/filtering in the main thread. Use when the user builds AI-generated or streamed UI (chat with components, AI search results, agent dashboards) and mentions CLS, INP, LCP, streaming, NDJSON, partial JSON, skeletons, virtualization, DOM recycling, state stores or "the page freezes while the AI answers".
 ---
 
 # Fast generative UI: 4 rules
 
-From the talk *Web performance en la era de la UI generativa* (DevFest Lima 2026). Metaphor: **building an apartment while the architect dictates the plan over the phone** — the browser builds live, with people already inside.
+From the talk *Web performance en la era de la UI generativa* (DevFest Lima 2026). Metaphor: **building an apartment while the architect dictates the plan over the phone**: the browser builds live, with people already inside.
 
 ## Workflow
 1. **Measure first** (never optimize blind): Chrome DevTools → Performance, CPU 4× slowdown, record one full AI response, stop. Read Insights: *Layout shift culprits*, *INP breakdown*, long animation frames. If Chrome DevTools for agents (chrome-devtools-mcp) is available, use `performance_start_trace` / `performance_stop_trace` / `performance_analyze_insight`.
@@ -20,7 +20,7 @@ From the talk *Web performance en la era de la UI generativa* (DevFest Lima 2026
 
 ## Rule 2 · Read the plan once (streaming JSON/HTML)
 - Prefer **NDJSON** (one complete piece per line). Keep the incomplete tail in a buffer; parse only complete lines. Each character is read once.
-- Never `JSON.parse(repair(buffer))` on every chunk — that is quadratic.
+- Never `JSON.parse(repair(buffer))` on every chunk; that is quadratic.
 - Batch DOM updates: one render per `requestAnimationFrame`, not one per token/chunk.
 - Streaming HTML is fine for prose; not for interactive catalog pieces.
 

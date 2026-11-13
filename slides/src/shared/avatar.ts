@@ -37,9 +37,9 @@ export const COLORES_PELO = [
   { label: 'Canas', c: '#c9c9c9' },
   { label: 'Fantasía', c: '#7b43e6' },
 ] as const;
-export const ROPAS = ['Hoodie', 'Casaca de jean', 'Camiseta blanquirroja', 'Chaqueta de chef', 'Polo a rayas', 'Blazer', 'Chompa de alpaca', 'Traje de surf'] as const;
-export const GORROS = ['Sin gorro', 'Gorra', 'Toque de chef', 'Casco de parapente', 'Audífonos', 'Chullo urbano', 'Sombrero de paja'] as const;
-export const LENTES = ['Sin lentes', 'De sol', 'Redondos', 'Visor futurista', 'De lectura'] as const;
+export const ROPAS = ['Sudadera', 'Chaqueta de jean', 'Camiseta de Perú', 'Chaqueta de chef', 'Camiseta a rayas', 'Saco', 'Suéter de alpaca', 'Traje de surf'] as const;
+export const GORROS = ['Sin gorro', 'Gorra', 'Gorro de chef', 'Casco de parapente', 'Audífonos', 'Gorro tejido', 'Sombrero de playa'] as const;
+export const LENTES = ['Sin lentes', 'Lentes de sol', 'Lentes redondos', 'Visor futurista', 'Lentes de lectura'] as const;
 export const EXPRESIONES = ['Feliz', 'Sonrisa', 'Guiño', 'Sorpresa', 'Concentrada'] as const;
 export const ACCESORIOS = ['Nada', 'Laptop', 'Tabla de surf', 'Ceviche', 'Chicha morada', 'Picarones', 'Lupa', 'Robot agente', 'Cronómetro', 'Café', 'Celular'] as const;
 
@@ -49,14 +49,14 @@ export const MENSAJES_BY_TALK: Record<TalkId, readonly string[]> = {
     'Reservo el espacio antes de pintar',
     'Cero saltos: CLS en verde',
     'Parseo cada token una sola vez',
-    'Un render por frame',
-    'No tiro el DOM: lo reciclo',
+    'Dibujo una vez por cuadro',
+    'Reutilizo, no rehago',
     'La IA decide, mi código calcula',
     'Mido en un celular lento',
     'Streaming sin congelar la página',
-    'Listas largas, DOM corto',
+    'Listas largas, pocas filas en pantalla',
     'Mi INP está en verde',
-    'JSON por líneas, no de golpe',
+    'Un JSON por línea, no de golpe',
     'Mi UI generativa vuela',
   ],
   agentes: [
@@ -64,7 +64,7 @@ export const MENSAJES_BY_TALK: Record<TalkId, readonly string[]> = {
     'El árbol de accesibilidad es mi mapa',
     'Depuro con DevTools para agentes',
     'Mi agente mide y vuelve a medir',
-    'Mis tools salen en el panel WebMCP',
+    'Mis funciones salen en el panel WebMCP',
     'Errores que el agente entiende',
     'Pruebo como usuario automatizado',
     'Mi IA local no congela la página',
@@ -77,7 +77,7 @@ export const MENSAJES_BY_TALK: Record<TalkId, readonly string[]> = {
 export const MENSAJES = MENSAJES_BY_TALK[TALK];
 
 export const LEYENDA =
-  'Lima mira al mar: en la Costa Verde conviven surfistas, ciclistas, parapentes y cevicherías, y en Barranco los murales se mezclan con los coworks. Tu avatar es parte de esa Lima moderna, la que construye la web que viene.';
+  'Lima mira al mar: en la Costa Verde conviven surfistas, ciclistas, parapentes y restaurantes, y en Barranco los murales se mezclan con espacios de trabajo. Tu avatar es parte de esa Lima moderna, la que construye la web que viene.';
 
 const INK = '#1e1e1e';
 let seq = 0;

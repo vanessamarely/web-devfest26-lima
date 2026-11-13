@@ -18,8 +18,8 @@ describe('modelo simulado', () => {
   it('decide plano primero, 6 destacados y el mapa DESPUÉS de las tarjetas', () => {
     const p = decidir(PEDIDO);
     expect(p[0].tipo).toBe('plano');
-    expect(p.filter((x) => x.tipo === 'depa')).toHaveLength(6);
-    expect(p.findIndex((x) => x.tipo === 'mapa')).toBeGreaterThan(p.findIndex((x) => x.tipo === 'depa'));
+    expect(p.filter((x) => x.tipo === 'inmueble')).toHaveLength(6);
+    expect(p.findIndex((x) => x.tipo === 'mapa')).toBeGreaterThan(p.findIndex((x) => x.tipo === 'inmueble'));
   });
 });
 

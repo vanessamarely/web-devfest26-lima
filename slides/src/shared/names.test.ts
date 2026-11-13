@@ -10,11 +10,16 @@ describe('apodos', () => {
     expect(new Set(names.map(nameKey)).size).toBe(names.length);
   });
 
-  it('respetan el género ("Garúa Limeña", "Pelícano Limeño")', () => {
+  it('respetan el género ("Brisa Limeña", "Pelícano Limeño")', () => {
     const names = allNames();
-    expect(names).toContain('Garúa Limeña');
+    expect(names).toContain('Brisa Limeña');
     expect(names).toContain('Pelícano Limeño');
-    expect(names).not.toContain('Garúa Limeño');
+    expect(names).not.toContain('Brisa Limeño');
+  });
+
+  it('no usan jerga ni palabras que en Lima puedan sonar mal', () => {
+    const malas = /\b(bac[aá]n|chalac|criollo|chifa|causa|chicha|picar[oó]n|cholo|huev|pendej|conch|cach|pata|jerma|pituc|chibol|paja)/i;
+    for (const n of allNames()) expect(n).not.toMatch(malas);
   });
 
   it('caben en las reglas de Firestore (≤ 40 caracteres con numeración)', () => {

@@ -14,8 +14,8 @@ import type { SlideContent, TalkContent } from '../content';
 const S0 = 'La idea';
 const S1 = '01 · ¿Qué ve el agente?';
 const S2 = '02 · ¿Qué hizo el agente?';
-const S3 = '03 · Simula al usuario automatizado';
-const S4 = '04 · Depura la IA del cliente';
+const S3 = '03 · Simula a un usuario automático';
+const S4 = '04 · Depura la IA de tu página';
 const S5 = 'Para llevar';
 
 export const CODE_MCP = `// .mcp.json (Claude Code, Gemini CLI, Antigravity, Cursor…)
@@ -96,16 +96,16 @@ async function recomendar(pregunta: string) {
 }`;
 
 export const CHECKLIST: [string, string][] = [
-  ['Elementos nativos', '<button>, <a>, <label>, <form>, <select>: traen rol, foco y teclado gratis.'],
+  ['Elementos nativos', '<button>, <a>, <label>, <form>, <select>: ya traen rol, foco y teclado.'],
   ['Todo control con nombre', 'texto visible o aria-label; un ícono solo no es un nombre.'],
-  ['Estado visible para máquinas', 'disabled, aria-busy, aria-expanded, aria-invalid: no solo colores.'],
+  ['Estado que una máquina pueda leer', 'disabled, aria-busy, aria-expanded, aria-invalid: no basta con cambiar colores.'],
   ['Mira con los ojos del agente', 'Elements → Accessibility (árbol completo) o take_snapshot con tu agente.'],
-  ['Una tool por intención', 'WebMCP con nombre, descripción y JSON Schema claros; revísalas en Application → WebMCP.'],
-  ['Errores que enseñan', '"20:00 no está libre; libres: 19:30, 21:00" en vez de "Error".'],
-  ['Lo irreversible se confirma', 'consequentialHint y confirmación de la persona antes de reservar o pagar.'],
-  ['Tu agente prueba tu web', 'Chrome DevTools for agents: navega, llena, lee consola y red, graba trazas.'],
-  ['Emula lo lento', 'CPU y red lentas: el agente encuentra las carreras antes que tus usuarios.'],
-  ['IA local con rienda', 'streaming, AbortController y una pista propia en Performance.'],
+  ['Una función por tarea', 'una tool de WebMCP por cada cosa que la gente viene a hacer, con nombre, descripción y parámetros claros; revísalas en Application → WebMCP.'],
+  ['Errores que explican', '"20:00 no está libre; libres: 19:30, 21:00" en vez de "Error".'],
+  ['Lo que no se puede deshacer, se confirma', 'consequentialHint y confirmación de la persona antes de reservar o pagar.'],
+  ['Tu agente prueba tu web', 'Chrome DevTools for agents: navega, llena formularios, lee la consola y la red, y graba mediciones de rendimiento.'],
+  ['Simula lo lento', 'procesador e internet lentos: el agente encuentra los errores de tiempo antes que tus usuarios.'],
+  ['IA de tu página bajo control', 'responde por partes (streaming), se puede cancelar (AbortController) y se mide en el panel Performance.'],
 ];
 export const CHECKLIST_TITLE = '10 reglas para una web que los agentes entienden';
 
@@ -167,10 +167,10 @@ export const SLIDES: SlideContent[] = [
     section: S0,
     title: 'Un agente "ve" tu página de cuatro formas',
     summary: [
-      'Captura de pantalla: píxeles. Caro y frágil.',
-      'DOM: todo el HTML. Miles de tokens y mucho ruido.',
-      'Árbol de accesibilidad: rol, nombre y estado de cada control. El mapa que más usan.',
-      'Tools de WebMCP: funciones con nombre y JSON Schema que tu página publica.',
+      'Captura de pantalla: una imagen. Caro y frágil.',
+      'DOM: todo el HTML. Mucho texto que no le sirve.',
+      'Árbol de accesibilidad: qué es cada control, cómo se llama y si se puede usar. El mapa que más usan.',
+      'Tools de WebMCP: funciones que tu página le ofrece al agente, con nombre y parámetros.',
     ],
     notes: 'De izquierda a derecha: "cada vez menos ruido, cada vez más intención". "Si su página es accesible, ya hicieron la mitad del trabajo para los agentes."',
     time: '2:45',
@@ -184,8 +184,8 @@ export const SLIDES: SlideContent[] = [
     title: 'Chrome DevTools for agents: tu agente de código controla un Chrome real',
     summary: [
       'Servidor MCP (chrome-devtools-mcp) + CLI (chrome-devtools) + skills: lo instalas en Claude Code, Gemini CLI, Antigravity o Cursor.',
-      'Tu agente navega, llena formularios, toma el árbol de accesibilidad, lee consola y red, graba trazas y corre Lighthouse.',
-      'Con --categoryExperimentalWebmcp también lista y ejecuta tus tools de WebMCP.',
+      'Tu agente navega, llena formularios, lee el árbol de accesibilidad, la consola y la red, mide el rendimiento y corre Lighthouse.',
+      'Con la opción --categoryExperimentalWebmcp también ve y usa las tools de WebMCP de tu página.',
     ],
     code: { file: '.mcp.json', text: CODE_MCP },
     notes: '"No es un Chrome de mentira: es el tuyo, con DevTools de verdad por debajo (CDP y Puppeteer)." Categorías: input, navegación, emulación, performance, red, depuración. Modo foco: config y luego la CLI.',
@@ -288,7 +288,7 @@ export const SLIDES: SlideContent[] = [
     kind: 'content',
     section: S2,
     title: '02 · ¿Qué hizo el agente?',
-    summary: ['Cada llamada deja huella: tool, entrada, salida y estado.'],
+    summary: ['Cada acción del agente queda registrada: qué función usó, con qué datos, qué respondió y si funcionó.'],
     notes: 'Vuelve al mapa: pregunta 2.',
     time: '9:15',
   }),
@@ -297,11 +297,11 @@ export const SLIDES: SlideContent[] = [
     label: 'Panel WebMCP',
     kind: 'content',
     section: S2,
-    title: 'Application → WebMCP: qué tools vio y cuáles llamó',
+    title: 'Application → WebMCP: qué funciones vio y cuáles usó',
     summary: [
-      'Available tools: lo que el agente puede usar, con nombre, descripción y cuántas veces se llamó.',
-      'Invoked tools: cada llamada con estado (Completed, Error, Canceled), entrada y salida.',
-      'Run tool: ejecútala a mano, sin agente, con los mismos parámetros.',
+      'Available tools: lo que el agente puede usar, con nombre, descripción y cuántas veces lo usó.',
+      'Invoked tools: cada uso con su resultado (Completed, Error, Canceled), los datos que envió y la respuesta.',
+      'Run tool: pruébala a mano, sin agente, con los mismos datos.',
     ],
     notes: 'Recreación del panel con las tools de Mesa. "Si el agente falla, aquí ven si fue él… o su tool."',
     time: '9:30',
@@ -309,14 +309,14 @@ export const SLIDES: SlideContent[] = [
   }),
   S({
     id: 'hizo-errores',
-    label: 'Errores que enseñan',
+    label: 'Errores que explican',
     kind: 'content',
     section: S2,
     title: 'Errores que el agente entiende',
     summary: [
-      '"Error" a secas: el agente reintenta lo mismo.',
+      '"Error" a secas: el agente vuelve a intentar lo mismo.',
       '"20:00 no está libre; libres: 19:30, 21:00": el agente se corrige solo.',
-      'consequentialHint: reservar es irreversible, así que la persona confirma.',
+      'consequentialHint: una reserva no se puede deshacer, así que la persona confirma.',
     ],
     code: { file: 'demo-agentes/src/tools.ts', text: CODE_TOOL },
     notes: 'Modo foco en el error.',
@@ -325,7 +325,7 @@ export const SLIDES: SlideContent[] = [
   }),
   S({
     id: 'clip-hizo',
-    label: 'Demo · Tools',
+    label: 'Demo · Errores',
     kind: 'demo',
     section: S2,
     title: 'Demo: de "Error" a un error útil',
@@ -339,7 +339,7 @@ export const SLIDES: SlideContent[] = [
     label: '03 Simular',
     kind: 'content',
     section: S3,
-    title: '03 · Simula al usuario automatizado',
+    title: '03 · Simula a un usuario automático',
     summary: ['¿Qué pasa si quien usa tu web va más rápido que una persona?'],
     notes: 'Vuelve al mapa: pregunta 3.',
     time: '11:45',
@@ -349,11 +349,11 @@ export const SLIDES: SlideContent[] = [
     label: 'Tu agente prueba',
     kind: 'content',
     section: S3,
-    title: 'Tu agente de código como usuario automatizado',
+    title: 'Tu agente de código prueba tu web como un usuario',
     summary: [
-      'Navega → toma el árbol → llena y hace clic → espera un texto → lee consola y red.',
-      'Emula CPU, red y pantalla de un celular: encuentra lo que solo falla cuando todo va lento… o muy rápido.',
-      'Graba una traza de performance y corre Lighthouse (incluye la categoría Agentic Browsing, experimental).',
+      'Navega → lee el árbol → llena y hace clic → espera un texto → revisa la consola y la red.',
+      'Simula un procesador lento, internet lento o la pantalla de un celular: encuentra lo que solo falla cuando todo va lento… o muy rápido.',
+      'Mide el rendimiento y corre Lighthouse (incluye la categoría Agentic Browsing, experimental).',
     ],
     notes: 'Bucle del diagrama. Ejemplo de prompt: "Abre Mesa, reserva para 4 el sábado a las 20:00 con CPU 4× y red 3G; dime qué falla y por qué." Tools: navigate_page, take_snapshot, fill_form, click, wait_for, list_console_messages, list_network_requests, emulate, performance_start_trace, lighthouse_audit.',
     time: '12:00',
@@ -361,14 +361,14 @@ export const SLIDES: SlideContent[] = [
   }),
   S({
     id: 'simular-carrera',
-    label: 'La carrera',
+    label: 'Clic antes de tiempo',
     kind: 'content',
     section: S3,
     title: 'El agente hace clic antes de que la página esté lista',
     summary: [
       'Una persona espera a ver los horarios. Un agente hace clic apenas existe el botón.',
-      'Si el botón "parece" deshabilitado pero no lo está, el agente reserva con datos vacíos.',
-      'Arreglo: estado real (disabled, aria-busy) hasta que todo cargó.',
+      'Si el botón solo se ve gris pero no está desactivado, el agente reserva sin hora.',
+      'Arreglo: desactivarlo de verdad (disabled, aria-busy) hasta que todo cargue.',
     ],
     code: { file: 'demo-agentes/src/ui/reserva.ts', text: CODE_LISTO },
     notes: 'Modo foco. "El gris no es un estado: disabled sí."',
@@ -377,10 +377,10 @@ export const SLIDES: SlideContent[] = [
   }),
   S({
     id: 'clip-simular',
-    label: 'Demo · Carrera',
+    label: 'Demo · Clic antes de tiempo',
     kind: 'demo',
     section: S3,
-    title: 'Demo: red lenta + agente rápido',
+    title: 'Demo: internet lento + agente rápido',
     summary: ['Con red lenta, el agente reserva sin horario. Con aria-busy y disabled, espera y reserva bien.'],
     notes: 'Clip con la línea de tiempo del agente.',
     time: '14:00',
@@ -391,7 +391,7 @@ export const SLIDES: SlideContent[] = [
     kind: 'poll',
     qid: 'q2',
     section: S3,
-    title: 'Pregunta 2 · DevTools for agents',
+    title: 'Pregunta 2 · El agente es más rápido',
     summary: [],
     notes: 'Espera ~25 s y revela con V.',
     time: '14:45',
@@ -399,10 +399,10 @@ export const SLIDES: SlideContent[] = [
   // ── 04 ──
   S({
     id: 'sec-ia',
-    label: '04 IA del cliente',
+    label: '04 IA de tu página',
     kind: 'content',
     section: S4,
-    title: '04 · Depura la IA del cliente',
+    title: '04 · Depura la IA de tu página',
     summary: ['¿Qué está pensando la IA que corre en tu página?'],
     notes: 'Vuelve al mapa: pregunta 4.',
     time: '15:30',
@@ -415,7 +415,7 @@ export const SLIDES: SlideContent[] = [
     title: 'Tres bugs típicos de la IA en el navegador',
     summary: [
       'Congela: esperas la respuesta completa y la página no responde.',
-      'Responde tarde a lo viejo: la persona cambió la pregunta y llega la respuesta anterior.',
+      'Responde lo de antes: la persona cambió la pregunta y llega la respuesta anterior.',
       'Nadie sabe cuánto tarda: no aparece en ninguna herramienta.',
     ],
     notes: 'Ejemplo de Mesa: "¿Qué pido?" con Gemini Nano (Prompt API) o el modo simulado. Herramientas: Performance con pista propia, consola, chrome://on-device-internals para ver el modelo.',
@@ -424,14 +424,14 @@ export const SLIDES: SlideContent[] = [
   }),
   S({
     id: 'ia-codigo',
-    label: 'Streaming + abort',
+    label: 'Por partes + cancelar',
     kind: 'content',
     section: S4,
-    title: 'Streaming, AbortController y una pista propia',
+    title: 'Responder por partes, cancelar y medir',
     summary: [
-      'promptStreaming pinta mientras el modelo piensa.',
-      'abort() cancela la pregunta vieja.',
-      'performance.measure con detail.devtools: tu IA aparece como pista en Performance.',
+      'promptStreaming muestra el texto mientras el modelo piensa.',
+      'abort() cancela la pregunta anterior.',
+      'performance.measure con detail.devtools: tu IA aparece como una línea con nombre en el panel Performance.',
     ],
     code: { file: 'demo-agentes/src/ia.ts', text: CODE_IA },
     notes: 'Modo foco en las 3 partes.',
@@ -456,22 +456,22 @@ export const SLIDES: SlideContent[] = [
     title: 'Demo en vivo: DevTools de verdad',
     summary: [
       'Elements → Accessibility: el botón antes y después.',
-      'Application → WebMCP: las tools de Mesa, una llamada con error y Run tool.',
-      'Tu agente de código con Chrome DevTools for agents: reserva con CPU 4× y explica qué falló.',
+      'Application → WebMCP: las funciones de Mesa, un uso con error y Run tool.',
+      'Tu agente de código con Chrome DevTools for agents: reserva con un procesador 4× más lento y explica qué falló.',
     ],
     notes: 'Guion (6 min): 1) Mesa con ?bugs=todos, Elements → Accessibility sobre el botón. 2) Application → WebMCP (flag chrome://flags/#enable-webmcp-testing), Run tool reservar_mesa con hora 20:00. 3) Terminal: prompt al agente con chrome-devtools-mcp. 4) Performance: pista "Mesa · IA local". Plan B: clips.',
     time: '18:15',
   }),
   S({
     id: 'razonar',
-    label: 'Fácil de razonar',
+    label: 'Fácil de entender',
     kind: 'content',
     section: S5,
-    title: 'Una web fácil de razonar para agentes',
+    title: 'Una web fácil de entender para agentes',
     summary: [
-      'Legible: HTML nativo, nombres y estados (lo que sirve a un lector de pantalla, sirve a un agente).',
-      'Accionable: tools de WebMCP por intención, con errores que enseñan.',
-      'Estable: sin saltos ni carreras; lo irreversible se confirma.',
+      'Legible: elementos nativos, nombres y estados (lo que sirve a un lector de pantalla, sirve a un agente).',
+      'Accionable: una función de WebMCP por cada tarea, con errores que explican qué hacer.',
+      'Estable: nada se mueve ni se adelanta; lo que no se puede deshacer se confirma.',
       'Lighthouse → Agentic Browsing (experimental) lo revisa por ti.',
     ],
     notes: 'Recap de las 4 preguntas sobre esta pirámide.',
@@ -484,7 +484,7 @@ export const SLIDES: SlideContent[] = [
     kind: 'poll',
     qid: 'q3',
     section: S5,
-    title: 'Pregunta 3 · IA del cliente',
+    title: 'Pregunta 3 · La IA de tu página',
     summary: [],
     notes: 'Espera ~25 s y revela con V.',
     time: '25:15',

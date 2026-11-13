@@ -3,7 +3,7 @@
 const params = new URLSearchParams(location.search);
 const sel = document.querySelector<HTMLSelectElement>('#regla')!;
 sel.value = params.get('regla') ?? '1';
-const NOMBRES = ['', 'Reserva el espacio', 'Lee el plano una vez', 'Recicla, no demuelas', 'Una sola libreta'];
+const NOMBRES = ['', 'Reserva el espacio', 'Lee cada parte una vez', 'Reutiliza, no rehagas', 'Un solo lugar para los datos'];
 const ifr = { bad: document.querySelector<HTMLIFrameElement>('[data-f="bad"]')!, good: document.querySelector<HTMLIFrameElement>('[data-f="good"]')! };
 const tps = params.get('tps') ?? '70';
 type M = { cls: number; inp: number; leidos: number; renders: number; creados: number; loafMax: number };
@@ -11,9 +11,9 @@ const listos = new Set<string>();
 
 function metrica(n: number, m: M) {
   if (n === 1) return `CLS <b>${m.cls.toFixed(3)}</b>`;
-  if (n === 2) return `leídos <b>${m.leidos.toLocaleString('es-PE')}</b> · renders <b>${m.renders}</b>`;
-  if (n === 3) return `nodos creados <b>${m.creados.toLocaleString('es-PE')}</b>`;
-  return `INP <b>${m.inp ? `${m.inp} ms` : '—'}</b>`;
+  if (n === 2) return `leídos <b>${m.leidos.toLocaleString('es-PE')}</b> · dibujos <b>${m.renders}</b>`;
+  if (n === 3) return `elementos creados <b>${m.creados.toLocaleString('es-PE')}</b>`;
+  return `INP <b>${m.inp ? `${m.inp} ms` : '-'}</b>`;
 }
 
 function cargar() {

@@ -1,5 +1,5 @@
 // Apodos generados (sin texto libre: nada inapropiado llega al proyector).
-//  · Sabor limeño + vocabulario de las dos charlas, con concordancia de género ("Garúa Limeña", "Pelícano Limeño").
+//  · Sabor limeño + vocabulario de las dos charlas, con concordancia de género ("Brisa Limeña", "Pelícano Limeño").
 //  · 48 sustantivos × 36 adjetivos ≈ 1.700 combinaciones: de sobra para 300+ asistentes.
 //  · Aun así, si dos personas eligen el mismo apodo, la segunda recibe una numeración
 //    ("Pelícano Veloz 2"): ver claimUniqueName. Firestore (o el modo local) garantiza la reserva.
@@ -9,11 +9,11 @@ type G = 'm' | 'f';
 /** [sustantivo, género] */
 export const NOUNS: readonly (readonly [string, G])[] = [
   // Lima y la Costa Verde
-  ['Pelícano', 'm'], ['Zarcillo', 'm'], ['Malecón', 'm'], ['Faro', 'm'], ['Parapente', 'm'], ['Ceviche', 'm'],
-  ['Anticucho', 'm'], ['Picarón', 'm'], ['Suspiro', 'm'], ['Balcón', 'm'], ['Tondero', 'm'], ['Cajón', 'm'],
-  ['Lobo Marino', 'm'], ['Surfista', 'm'], ['Tamal', 'm'], ['Puente', 'm'], ['Chifa', 'm'], ['Mar', 'm'],
-  ['Garúa', 'f'], ['Gaviota', 'f'], ['Huaca', 'f'], ['Ola', 'f'], ['Causa', 'f'], ['Marinera', 'f'],
-  ['Chicha', 'f'], ['Lúcuma', 'f'], ['Costa', 'f'], ['Bicicleta', 'f'], ['Tabla', 'f'], ['Quinua', 'f'],
+  ['Pelícano', 'm'], ['Colibrí', 'm'], ['Malecón', 'm'], ['Faro', 'm'], ['Parapente', 'm'], ['Ceviche', 'm'],
+  ['Mural', 'm'], ['Velero', 'm'], ['Balcón', 'm'], ['Puerto', 'm'], ['Cajón', 'm'], ['Acantilado', 'm'],
+  ['Lobo Marino', 'm'], ['Surfista', 'm'], ['Mirador', 'm'], ['Puente', 'm'], ['Jardín', 'm'], ['Mar', 'm'],
+  ['Brisa', 'f'], ['Gaviota', 'f'], ['Huaca', 'f'], ['Ola', 'f'], ['Playa', 'f'], ['Marinera', 'f'],
+  ['Estrella', 'f'], ['Lúcuma', 'f'], ['Costa', 'f'], ['Bicicleta', 'f'], ['Tabla', 'f'], ['Quinua', 'f'],
   // Las dos charlas
   ['Token', 'm'], ['Prompt', 'm'], ['Agente', 'm'], ['Schema', 'm'], ['Frame', 'm'], ['Pixel', 'm'],
   ['Render', 'm'], ['Stream', 'm'], ['Snapshot', 'm'], ['Parser', 'm'], ['Worker', 'm'], ['Navegador', 'm'],
@@ -27,8 +27,8 @@ export const ADJS: readonly (readonly [string, string])[] = [
   ['Sabio', 'Sabia'], ['Audaz', 'Audaz'], ['Feliz', 'Feliz'], ['Turbo', 'Turbo'], ['Estelar', 'Estelar'],
   ['Asíncrono', 'Asíncrona'], ['Reactivo', 'Reactiva'], ['Eléctrico', 'Eléctrica'], ['Dorado', 'Dorada'], ['Zen', 'Zen'],
   ['Pro', 'Pro'], ['Galáctico', 'Galáctica'], ['Atómico', 'Atómica'], ['Legendario', 'Legendaria'], ['Imparable', 'Imparable'],
-  ['Costeño', 'Costeña'], ['Chalaco', 'Chalaca'], ['Bacán', 'Bacán'], ['Agéntico', 'Agéntica'], ['Fluido', 'Fluida'],
-  ['Generativo', 'Generativa'], ['Barranquino', 'Barranquina'], ['Miraflorino', 'Miraflorina'], ['Mágico', 'Mágica'], ['Criollo', 'Criolla'],
+  ['Costeño', 'Costeña'], ['Alegre', 'Alegre'], ['Amable', 'Amable'], ['Agéntico', 'Agéntica'], ['Fluido', 'Fluida'],
+  ['Generativo', 'Generativa'], ['Creativo', 'Creativa'], ['Luminoso', 'Luminosa'], ['Mágico', 'Mágica'], ['Tranquilo', 'Tranquila'],
   ['Neón', 'Neón'],
 ];
 

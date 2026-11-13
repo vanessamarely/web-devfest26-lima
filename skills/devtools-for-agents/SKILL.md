@@ -22,13 +22,13 @@ Then loop: `navigate_page` → `take_snapshot` → `fill` / `fill_form` / `click
 ## 10 rules
 1. Native elements: `<button>`, `<a>`, `<label>`, `<form>`, `<select>`.
 2. Every control has an accessible name (visible text or `aria-label`); an icon alone is not a name.
-3. Expose state to machines: `disabled`, `aria-busy`, `aria-expanded`, `aria-invalid` — not only colors.
+3. Expose state to machines: `disabled`, `aria-busy`, `aria-expanded`, `aria-invalid`, not only colors.
 4. Inspect what the agent sees: Elements → Accessibility (full tree) or `take_snapshot`.
 5. One WebMCP tool per intent, with clear name, description and JSON Schema; check them in Application → WebMCP (Available / Invoked tools, Run tool).
 6. Errors that teach: "20:00 is not free; free: 19:30, 21:00" instead of "Error".
 7. Irreversible actions: `annotations.consequentialHint` + human confirmation.
 8. Let your coding agent test the site end to end with a real Chrome.
-9. Emulate slow CPU/network: agents click as soon as a control exists — don't enable it until data is loaded.
+9. Emulate slow CPU/network: agents click as soon as a control exists, so don't enable it until data is loaded.
 10. Client-side AI: `promptStreaming`, `AbortController` for stale prompts, `performance.measure` with `detail.devtools` (own track), check the model in `chrome://on-device-internals`.
 
 ## Anti-patterns to flag

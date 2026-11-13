@@ -184,3 +184,4 @@ main { max-width: 1120px; margin: 0 auto; padding: 0 28px 48px; }
 :root[data-embed] .mini { zoom: 1.5; }
 :root[data-embed] .top { position: static; }
 :root[data-embed] .toolbar { position: sticky; top: 0; z-index: 15; background: var(--bg); padding: 6px 0; margin: 4px 0 10px; }
+.x-ayuda { margin: 4px 0 0; color: #94a3b8; font-size: 12px; line-height: 1.4; }

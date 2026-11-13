@@ -15,16 +15,16 @@ import { esc } from './genui/piezas';
 
 type ReglaId = 'espacio' | 'plano' | 'reciclar' | 'libreta';
 const REGLAS: { id: ReglaId; n: number; titulo: string; sub: string; mide: string }[] = [
-  { id: 'espacio', n: 1, titulo: 'Reserva el espacio', sub: 'El plano llega primero; cada sección con su tamaño final.', mide: 'CLS' },
-  { id: 'plano', n: 2, titulo: 'Lee el plano una vez', sub: 'NDJSON (cada carácter una vez) y un render por frame.', mide: 'Caracteres leídos · renders' },
-  { id: 'reciclar', n: 3, titulo: 'Recicla, no demuelas', sub: 'Un nodo por id; la lista larga con pocas filas.', mide: 'Nodos creados' },
-  { id: 'libreta', n: 4, titulo: 'Una sola libreta', sub: 'Store por id; ordenar en un Worker con feedback inmediato.', mide: 'INP' },
+  { id: 'espacio', n: 1, titulo: 'Reserva el espacio', sub: 'El plano llega primero; cada sección con su tamaño final.', mide: 'CLS (saltos)' },
+  { id: 'plano', n: 2, titulo: 'Lee cada parte una vez', sub: 'Un JSON por línea (cada carácter se lee una vez) y un dibujo por cuadro.', mide: 'Caracteres leídos · veces que dibuja' },
+  { id: 'reciclar', n: 3, titulo: 'Reutiliza, no rehagas', sub: 'Un elemento por id; la lista larga con pocas filas.', mide: 'Elementos creados' },
+  { id: 'libreta', n: 4, titulo: 'Un solo lugar para los datos', sub: 'Datos por id; ordenar en un Web Worker con respuesta inmediata al clic.', mide: 'INP' },
 ];
 
 const params = new URLSearchParams(location.search);
 const EMBED = params.has('embed');
 const TPS = Number(params.get('tps')) || 70;
-const PEDIDO_INICIAL = 'Depa de 2 dormitorios en Barranco con vista al mar, menos de S/ 3.000';
+const PEDIDO_INICIAL = 'Departamento de 2 dormitorios en Barranco con vista al mar, menos de S/ 3.000';
 
 const reglas: Record<ReglaId, boolean> = { espacio: true, plano: true, reciclar: true, libreta: true };
 if (params.get('preset') === 'roto') for (const r of REGLAS) reglas[r.id] = false;
@@ -163,7 +163,7 @@ function pintarToolbar() {
   const tb = $('.toolbar');
   tb.hidden = !estado.plano && !estado.resumen && fase === 'listo';
   const st = $('[data-estado]');
-  st.innerHTML = fase === 'escribiendo' ? '<span class="dots"></span> Nido está armando tus resultados…' : fase === 'ordenando' ? '<span class="dots"></span> Ordenando 300 depas…' : `✓ Listo${lab.m.ms ? ` en ${(lab.m.ms / 1000).toFixed(1)} s` : ''}`;
+  st.innerHTML = fase === 'escribiendo' ? '<span class="dots"></span> Nido está armando tus resultados…' : fase === 'ordenando' ? '<span class="dots"></span> Ordenando 300 departamentos…' : `✓ Listo${lab.m.ms ? ` en ${(lab.m.ms / 1000).toFixed(1)} s` : ''}`;
 }
 
 // ── Panel Rayos X ───────────────────────────────────────────────────────
@@ -176,8 +176,8 @@ function armarPanel() {
     ).join('')}</div>
     <div class="x-hud" data-hud></div>
     <div class="x-actions"><button type="button" class="x-go" data-x-generar>Generar</button><button type="button" data-x-precios>Actualizar precios</button><button type="button" data-x-ordenar>Ordenar</button></div>
-    <details class="x-dictado" open><summary>Plano dictado <small data-formato></small></summary><pre data-dictado></pre></details>
-    <p class="x-tip">Tip: DevTools → Performance → CPU 4× y graba. Verás la pista <b>Nido · UI generativa</b>.</p>`;
+    <details class="x-dictado" open><summary>Lo que envía la IA <small data-formato></small></summary><p class="x-ayuda">La respuesta del modelo tal como llega, antes de convertirse en pantalla. Con la regla 2 llega un componente por línea (↵); sin ella, un solo JSON que el código vuelve a leer completo cada vez que llega algo.</p><pre data-dictado></pre></details>
+    <p class="x-tip">Consejo: en DevTools → Performance, pon el procesador 4× más lento y graba. Verás la línea <b>Nido · UI generativa</b>.</p>`;
   panel.addEventListener('change', (e) => {
     const r = (e.target as HTMLElement).closest<HTMLInputElement>('[data-rule]');
     if (!r) return;
@@ -207,21 +207,21 @@ function pintarHud() {
   if (hud)
     hud.innerHTML = [
       ['CLS', m.cls.toFixed(3), color(m.cls > 0.25, m.cls > 0.1), 'espacio'],
-      ['INP', m.inp ? `${fmt(m.inp)} ms` : '—', color(m.inp > 500, m.inp > 200), 'libreta'],
-      ['Frames largos', `${m.loaf}${m.loafMax ? ` · ${m.loafMax} ms` : ''}`, color(m.loafMax > 200, m.loaf > 0), 'libreta'],
+      ['INP', m.inp ? `${fmt(m.inp)} ms` : '-', color(m.inp > 500, m.inp > 200), 'libreta'],
+      ['Pausas largas', `${m.loaf}${m.loafMax ? ` · ${m.loafMax} ms` : ''}`, color(m.loafMax > 200, m.loaf > 0), 'libreta'],
       ['Caracteres leídos', fmt(m.leidos), color(m.leidos > 60000, m.leidos > 8000), 'plano'],
-      ['Renders', fmt(m.renders), color(m.renders > 150, m.renders > 60), 'plano'],
-      ['Nodos creados', fmt(m.creados), color(m.creados > 8000, m.creados > 2500), 'reciclar'],
-      ['Nodos en el DOM', fmt(m.dom), color(m.dom > 3000, m.dom > 1500), 'reciclar'],
-      ['Tiempo', m.ms ? `${(m.ms / 1000).toFixed(1)} s` : '—', 'neutral', ''],
+      ['Veces que dibujó', fmt(m.renders), color(m.renders > 150, m.renders > 60), 'plano'],
+      ['Elementos creados', fmt(m.creados), color(m.creados > 8000, m.creados > 2500), 'reciclar'],
+      ['Elementos en pantalla', fmt(m.dom), color(m.dom > 3000, m.dom > 1500), 'reciclar'],
+      ['Tiempo', m.ms ? `${(m.ms / 1000).toFixed(1)} s` : '-', 'neutral', ''],
     ]
       .map(([k, v, c, r]) => `<div class="x-m ${c}" data-for="${r}"><span>${k}</span><b>${v}</b></div>`)
       .join('');
   const f = panel.querySelector('[data-formato]');
-  if (f) f.textContent = reglas.plano ? 'NDJSON · una pieza por línea' : 'JSON completo · se relee entero';
+  if (f) f.textContent = reglas.plano ? '· un JSON por línea' : '· un solo JSON, se relee completo';
   // indicador mínimo en modo embed (comparador)
   const mini = document.querySelector('[data-mini]');
-  if (mini) mini.innerHTML = `<span>CLS <b>${m.cls.toFixed(3)}</b></span><span>INP <b>${m.inp || '—'}</b></span><span>leídos <b>${fmt(m.leidos)}</b></span><span>renders <b>${fmt(m.renders)}</b></span><span>nodos <b>${fmt(m.creados)}</b></span>`;
+  if (mini) mini.innerHTML = `<span>CLS <b>${m.cls.toFixed(3)}</b></span><span>INP <b>${m.inp || '-'}</b></span><span>leídos <b>${fmt(m.leidos)}</b></span><span>dibujos <b>${fmt(m.renders)}</b></span><span>elementos <b>${fmt(m.creados)}</b></span>`;
   avisarPadre('metricas');
 }
 

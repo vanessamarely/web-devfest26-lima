@@ -56,7 +56,7 @@ export function aplicarPiezas(e: Estado, libreta: Libreta, piezas: Pieza[]): Set
       case 'texto':
         e.resumen += p.delta;
         break;
-      case 'depa': {
+      case 'inmueble': {
         const { tipo: _t, ...d } = p;
         const full = DEPA_BY_ID.get(d.id);
         libreta.anotar(d.id, { ...full, ...d });

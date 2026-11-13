@@ -4,8 +4,8 @@ Charlas técnicas de [Vanessa Aristizabal](https://github.com/vanessamarely) en 
 
 | Día | Charla | Demo |
 |---|---|---|
-| **Día 1** | **Web performance en la era de la UI generativa** — 4 reglas para que una interfaz que escribe una IA sea rápida, estable y no congele la página. | **Nido**: buscador de depas con IA y panel **Rayos X** |
-| **Día 2** | **Chrome DevTools para agentes** — ver lo que un agente ve, hace y piensa en tu web, y depurarlo. | **Mesa**: reservas de restaurantes con **Panel del agente** |
+| **Día 1** | **Web performance en la era de la UI generativa**: 4 reglas para que una interfaz que escribe una IA sea rápida, estable y no congele la página. | **Nido**: buscador de depas con IA y panel **Rayos X** |
+| **Día 2** | **Chrome DevTools para agentes**: ver lo que un agente ve, hace y piensa en tu web, y depurarlo. | **Mesa**: reservas de restaurantes con **Panel del agente** |
 
 ## En vivo
 

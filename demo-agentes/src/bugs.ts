@@ -6,9 +6,9 @@
 export type BugId = 'div' | 'error' | 'carrera' | 'ia';
 export const BUGS: { id: BugId; n: number; titulo: string; sub: string }[] = [
   { id: 'div', n: 1, titulo: 'Botón sin nombre', sub: 'Un div con ícono en vez de <button>' },
-  { id: 'error', n: 2, titulo: 'Error opaco', sub: 'La tool responde "Error" a secas' },
-  { id: 'carrera', n: 3, titulo: 'Carrera de carga', sub: 'Gris por CSS, pero clicable antes de tiempo' },
-  { id: 'ia', n: 4, titulo: 'IA que congela', sub: 'En el hilo principal, sin streaming ni abort' },
+  { id: 'error', n: 2, titulo: 'Error sin explicación', sub: 'La función responde solo "Error"' },
+  { id: 'carrera', n: 3, titulo: 'Clic antes de tiempo', sub: 'Se ve gris, pero se puede usar antes de que cargue' },
+  { id: 'ia', n: 4, titulo: 'IA que congela', sub: 'Bloquea la página y no cancela la pregunta anterior' },
 ];
 
 const params = new URLSearchParams(location.search);

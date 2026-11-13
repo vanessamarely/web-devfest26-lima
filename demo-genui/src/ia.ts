@@ -12,7 +12,7 @@ export type TipoPieza = 'resumen' | 'mapa' | 'destacados' | 'grafico' | 'lista';
 export type Pieza =
   | { tipo: 'plano'; secciones: Seccion[] }
   | { tipo: 'texto'; id: 'resumen'; delta: string }
-  | ({ tipo: 'depa' } & Omit<Depa, 'x' | 'y' | 'piso'>)
+  | ({ tipo: 'inmueble' } & Omit<Depa, 'x' | 'y' | 'piso'>)
   | { tipo: 'mapa'; id: 'mapa'; zona: string; pins: string[] }
   | { tipo: 'grafico'; id: 'grafico'; titulo: string; barras: { distrito: string; valor: number }[] }
   | { tipo: 'lista'; id: 'lista'; filtro: Filtro; orden: 'precio_m2' | 'precio' | 'mar' }
@@ -41,13 +41,13 @@ export function decidir(pedido: string): Pieza[] {
   const total = filtrar(DEPAS, { distritos: vecinos, dorms: f.dorms }).length;
   const piezas: Pieza[] = [
     { tipo: 'plano', secciones: [{ id: 'resumen', tipo: 'resumen' }, { id: 'mapa', tipo: 'mapa' }, { id: 'destacados', tipo: 'destacados', n: 6 }, { id: 'grafico', tipo: 'grafico' }, { id: 'lista', tipo: 'lista' }] },
-    { tipo: 'texto', id: 'resumen', delta: `Encontré ${total} depas de ${f.dorms}+ dormitorios entre ${vecinos.join(', ')}. ` },
+    { tipo: 'texto', id: 'resumen', delta: `Encontré ${total} departamentos de ${f.dorms} o más dormitorios entre ${vecinos.join(', ')}. ` },
     { tipo: 'texto', id: 'resumen', delta: `Te muestro primero los 6 más cerca al malecón${f.vista ? ' y con vista al mar' : ''} por menos de S/ ${f.max!.toLocaleString('es-PE')}. ` },
     { tipo: 'texto', id: 'resumen', delta: 'Abajo comparo el precio por m² de cada distrito y te dejo la lista completa.' },
   ];
   for (const d of candidatos) {
     const { x: _x, y: _y, piso: _p, ...rest } = d;
-    piezas.push({ tipo: 'depa', ...rest });
+    piezas.push({ tipo: 'inmueble', ...rest });
   }
   // El mapa llega DESPUÉS de las tarjetas, pero va ARRIBA en el plano (aquí está el salto).
   piezas.push({ tipo: 'mapa', id: 'mapa', zona, pins: candidatos.map((d) => d.id) });
@@ -66,7 +66,7 @@ export function decidir(pedido: string): Pieza[] {
   return piezas;
 }
 
-/** "Actualizar precios": la IA revisa 24 depas de la lista y corrige sus precios. */
+/** "Actualizar precios": la IA revisa 24 departamentos de la lista y corrige sus precios. */
 export function correcciones(ronda: number): Pieza[] {
   const out: Pieza[] = [];
   for (let i = 0; i < 24; i++) {

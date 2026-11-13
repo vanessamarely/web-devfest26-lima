@@ -118,7 +118,7 @@ export async function agenteTools(log: Log): Promise<boolean> {
     if (!libres.length) {
       log({ accion: 'execute_webmcp_tool', detalle: `reservar_mesa (${hora}) → "${out}". No sé qué falló; reintento igual.`, tipo: 'mal' });
       await dormir(PASO);
-      if (intento === 3) log({ accion: 'fin', detalle: 'Me rindo: la tool solo dice "Error".', tipo: 'mal' });
+      if (intento === 3) log({ accion: 'fin', detalle: 'Me rindo: la función solo dice "Error".', tipo: 'mal' });
       continue;
     }
     hora = libres.sort((a, b) => Math.abs(min(a) - 1200) - Math.abs(min(b) - 1200) || (a > b ? -1 : 1))[0];

@@ -19,7 +19,7 @@ export function crearPanel(host: HTMLElement, reconstruir: () => void, preguntar
   let nodos: Nodo[] = [];
   let corriendo = false;
 
-  host.innerHTML = `<header><h2>Panel del agente</h2><span class="fluidez" data-fluidez><span class="pista"><i data-bola></i></span><b data-fps>—</b></span></header>
+  host.innerHTML = `<header><h2>Panel del agente</h2><span class="fluidez" data-fluidez><span class="pista"><i data-bola></i></span><b data-fps>-</b></span></header>
     <div class="bugs">${BUGS.map((b) => `<label class="bug-t"><span class="n">${b.n}</span><span><b>${esc(b.titulo)}</b><small>${esc(b.sub)}</small></span><input type="checkbox" role="switch" data-bug="${b.id}" ${bugs[b.id] ? 'checked' : ''} aria-label="Bug ${b.n}: ${b.titulo}" /></label>`).join('')}</div>
     <div class="presets"><button type="button" data-todos="1">Prender los 4 bugs</button><button type="button" data-todos="0">Arreglar todo</button></div>
     <div class="run"><button type="button" data-run="clics">▶ Agente de clics</button><button type="button" data-run="tools">▶ Agente con tools</button><button type="button" data-run="ia">▶ Preguntar 2 veces</button></div>
@@ -27,7 +27,7 @@ export function crearPanel(host: HTMLElement, reconstruir: () => void, preguntar
     <nav class="tabs" role="tablist">${(
       [
         ['ve', 'Lo que ve'],
-        ['tools', 'Tools (WebMCP)'],
+        ['tools', 'Funciones (WebMCP)'],
         ['tiempo', 'Línea de tiempo'],
       ] as [Tab, string][]
     )
@@ -141,7 +141,7 @@ export function crearPanel(host: HTMLElement, reconstruir: () => void, preguntar
     last = now;
     if (dt > peor || now - peorT > 3000) ((peor = dt), (peorT = now));
     bola.style.transform = `translateX(${(Math.sin(now / 220) + 1) * 26}px)`;
-    fps.textContent = `frame más lento ${Math.round(peor)} ms`;
+    fps.textContent = `pausa más larga ${Math.round(peor)} ms`;
     caja.dataset.mal = String(peor > 100);
     requestAnimationFrame(frame);
   };

@@ -50,7 +50,7 @@ function render(m: Extract<PresenterMsg, { type: 'state' }>) {
   if (!changed) return;
   $('[data-pos]').textContent = `${index + 1} / ${total}`;
   $('[data-section]').textContent = c?.section ?? c?.label ?? '';
-  $('[data-target]').textContent = c?.time ?? '—';
+  $('[data-target]').textContent = c?.time ?? '-';
   $('[data-title]').textContent = c?.title ?? m.id;
   $('[data-summary]').innerHTML = (c?.summary ?? []).map((p) => `<li>${esc(p)}</li>`).join('');
   $('[data-notes]').textContent = c?.notes ?? '';

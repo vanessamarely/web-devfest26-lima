@@ -302,7 +302,7 @@ export async function initLive(stage: DeckStage, sections: HTMLElement[]) {
     if (e.key.toLowerCase() === 'v' && presenter && !e.metaKey && !e.ctrlKey) reveal(q);
   });
 
-  // ── Muro de avatares (actualización por clave) — el mismo componente en las dos charlas ──
+  // ── Muro de avatares (actualización por clave): el mismo componente en las dos charlas ──
   const wall = document.querySelector<HTMLElement>('[data-avatar-wall]');
   const top = document.querySelector<HTMLElement>('[data-mensaje-top]');
   const tiles = new Map<string, { el: HTMLElement; sig: string }>();
@@ -428,7 +428,7 @@ export async function initLive(stage: DeckStage, sections: HTMLElement[]) {
         // +200: ya tenía su avatar en la otra charla y vino a esta (está en esta sala).
         const returning = otherAvatars.has(uid);
         const extras = { avatar: withAvatar.has(uid), returning, early, asked: askedSet.has(uid), reactions: part.reactions[uid] ?? 0 };
-        return { uid, name: names.get(uid) ?? own?.name ?? 'Limeñ@ anónim@', score: scoreFor(v, slide?.openedAt ?? {}, extras, answers), speed, code: winnerCode(uid), opts: own?.opts ?? otherAvatars.get(uid) ?? null, both: returning };
+        return { uid, name: names.get(uid) ?? own?.name ?? 'Persona anónima', score: scoreFor(v, slide?.openedAt ?? {}, extras, answers), speed, code: winnerCode(uid), opts: own?.opts ?? otherAvatars.get(uid) ?? null, both: returning };
       })
       // Para entrar al podio hay que acertar al menos una pregunta: los bonos solo suben posiciones.
       .filter((r) => r.score > 0 && correctCount(byVote.get(r.uid)?.votes ?? {}, answers) > 0)
@@ -453,8 +453,8 @@ export async function initLive(stage: DeckStage, sections: HTMLElement[]) {
     box.innerHTML = order
       .map((r, i) =>
         r
-          ? `<div class="step"><div class="podium-avatar">${avatar(r.opts, r.name)}</div><span class="medal">${medal[i]}</span><span class="name">${esc(r.name)}</span><span class="pts">${r.score.toLocaleString('es-PE')} pts</span>${i === 1 ? `<span class="code-chip">${esc(r.code)}</span>` : ''}</div>`
-          : '<div class="step"><span class="pts">—</span></div>',
+          ? `<div class="step"><div class="podium-avatar">${avatar(r.opts, r.name)}</div><span class="medal">${medal[i]}</span><span class="name">${esc(r.name)}</span><span class="pts">${r.score.toLocaleString('es-PE')} pts</span><span class="code-chip">${esc(r.code)}</span></div>`
+          : '<div class="step"><span class="pts">-</span></div>',
       )
       .join('');
     const rest = document.querySelector<HTMLElement>('[data-rest]');

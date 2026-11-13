@@ -2,13 +2,13 @@
 //
 // Una sola idea guía, para que la charla se siga sin perderse: UNA metáfora y CUATRO reglas.
 //
-//   "Construir un depa mientras te dictan el plano"
-//   La IA dicta la interfaz por partes (streaming); el navegador es el maestro de obra que
-//   construye EN VIVO… con la persona ya adentro.
-//     01 Reserva el espacio      → no muevas las paredes con la gente adentro   (renderizado, CLS)
-//     02 Lee el plano una vez    → no releas desde la primera página           (streaming JSON/HTML)
-//     03 Recicla, no demuelas    → para cambiar un mueble no tiras el depa      (reciclaje del DOM)
-//     04 Una sola libreta de obra→ la IA dicta qué, tu código calcula cuánto    (estado)
+//   "Construir una casa mientras te dictan el plano"
+//   La IA dicta la interfaz por partes (streaming); el navegador la construye mientras escucha,
+//   y la persona ya la está usando.
+//     01 Reserva el espacio            → guarda el lugar antes de que llegue el contenido  (renderizado, CLS)
+//     02 Lee cada parte una sola vez   → no releas todo desde el inicio                   (streaming JSON/HTML)
+//     03 Reutiliza, no rehagas         → cambia solo lo que cambió                        (reciclaje del DOM)
+//     04 Un solo lugar para los datos  → la IA decide qué mostrar; tu código hace cuentas  (estado)
 //
 // Cada capítulo tiene el mismo ritmo: lo que SIENTE la persona → por qué pasa (un diagrama) →
 // el arreglo (código corto) → la prueba en la demo Nido (clip con números reales).
@@ -16,15 +16,15 @@ import type { SlideContent, TalkContent } from '../content';
 
 const S0 = 'La idea';
 const S1 = '01 · Reserva el espacio';
-const S2 = '02 · Lee el plano una sola vez';
-const S3 = '03 · Recicla, no demuelas';
-const S4 = '04 · Una sola libreta de obra';
+const S2 = '02 · Lee cada parte una sola vez';
+const S3 = '03 · Reutiliza, no rehagas';
+const S4 = '04 · Un solo lugar para los datos';
 const S5 = 'Para llevar';
 
 export const CODE_PLANO = `// Lo primero que dicta el modelo es el PLANO: qué secciones vienen
 {"tipo":"plano","secciones":["resumen","mapa","destacados","grafico","lista"]}
-{"tipo":"texto","id":"resumen","delta":"Encontré 99 depas…"}
-{"tipo":"depa","id":"ba-012","precio":2830,"m2":76,…}
+{"tipo":"texto","id":"resumen","delta":"Encontré 99 departamentos…"}
+{"tipo":"inmueble","id":"ba-012","precio":2830,"m2":76,…}
 
 // Cada pieza del catálogo declara su tamaño ANTES de llegar
 const CATALOGO = {
@@ -68,39 +68,39 @@ function programarRender() {
 }`;
 
 export const CODE_CLAVES = `// ❌ Demoler: cada cambio de precio recrea TODA la lista
-lista.innerHTML = depas.map(tarjetaHTML).join('');
+lista.innerHTML = inmuebles.map(tarjetaHTML).join('');
 
 // ✅ Reciclar: un nodo por id; solo cambia lo que cambió
 const nodos = new Map<string, HTMLElement>();
 
-function aplicar(depa: Depa) {
-  let el = nodos.get(depa.id);
+function aplicar(inmueble: Inmueble) {
+  let el = nodos.get(inmueble.id);
   if (!el) {
-    el = crearTarjeta(depa);           // solo la primera vez
-    nodos.set(depa.id, el);
+    el = crearTarjeta(inmueble);           // solo la primera vez
+    nodos.set(inmueble.id, el);
     lista.append(el);
   }
-  if (el.dataset.precio !== String(depa.precio)) {
-    el.dataset.precio = String(depa.precio);
-    el.querySelector('.precio')!.textContent = soles(depa.precio);
+  if (el.dataset.precio !== String(inmueble.precio)) {
+    el.dataset.precio = String(inmueble.precio);
+    el.querySelector('.precio')!.textContent = soles(inmueble.precio);
   }
 }`;
 
 export const CODE_ESTADO = `// La IA dicta QUÉ mostrar. Tu código calcula CUÁNTO, en qué orden, si cabe.
-const libreta = new Map<string, Depa>();          // una sola fuente de verdad
+const datos = new Map<string, Inmueble>();         // un solo lugar para los datos
 const avisos = new Map<string, Set<() => void>>();
 
-function anotar(id: string, cambio: Partial<Depa>) {
-  libreta.set(id, { ...libreta.get(id)!, ...cambio });
+function anotar(id: string, cambio: Partial<Inmueble>) {
+  datos.set(id, { ...datos.get(id)!, ...cambio });
   avisos.get(id)?.forEach((pintar) => pintar());   // solo a quien lo usa
 }
 
-// Ordenar 300 depas (precio por m², cercanía al mar…) fuera del hilo principal
+// Ordenar 300 departamentos (precio por m², cercanía al mar…) en paralelo
 const orden = new Worker(new URL('./orden.worker.ts', import.meta.url), { type: 'module' });
 
 botonOrdenar.addEventListener('click', () => {
-  botonOrdenar.setAttribute('aria-busy', 'true');  // respuesta inmediata
-  orden.postMessage([...libreta.values()]);
+  botonOrdenar.setAttribute('aria-busy', 'true');  // respuesta inmediata al clic
+  orden.postMessage([...datos.values()]);
 });
 orden.onmessage = ({ data: ids }) => reordenar(ids); // mueve nodos, no los recrea`;
 
@@ -118,20 +118,20 @@ performance.measure('Parser', {
 });`;
 
 export const CHECKLIST: [string, string][] = [
-  ['Mide como tu usuario', 'CPU 4× más lenta en DevTools y mira las 3 sensaciones: ¿ya está? (LCP), ¿me hace caso? (INP), ¿se queda quieto? (CLS).'],
-  ['Catálogo, no HTML libre', 'el modelo elige piezas tuyas con un JSON Schema; tú decides cómo se ven y cuánto miden.'],
+  ['Mide como tu usuario', 'en DevTools simula un procesador 4× más lento y mira las 3 sensaciones: ¿ya está? (LCP), ¿me hace caso? (INP), ¿se queda quieto? (CLS).'],
+  ['Tus componentes, no HTML libre', 'el modelo elige entre tus componentes con un JSON Schema; tú decides cómo se ven y cuánto miden.'],
   ['Primero el plano', 'reserva cada sección con su tamaño final antes de que llegue su contenido.'],
-  ['Fotos con aspect-ratio', 'la imagen llega después; el hueco ya estaba.'],
-  ['Streaming por líneas', 'NDJSON: una línea = una pieza; cada carácter se lee una sola vez.'],
-  ['Un render por frame', 'agrupa lo que llegó con requestAnimationFrame; 70 tokens por segundo no son 70 renders.'],
-  ['Claves estables', 'un nodo por id; si cambia el precio, cambias el precio, no la tarjeta.'],
-  ['Listas largas, DOM corto', 'recicla un puñado de nodos (o content-visibility) aunque haya 300 resultados.'],
-  ['Una sola libreta', 'un store por id; la IA manda cambios y cada pieza escucha solo lo suyo.'],
-  ['Lo pesado, fuera', 'ordenar o filtrar en un Worker y dar feedback inmediato al clic.'],
+  ['Fotos con aspect-ratio', 'la imagen llega después, pero su espacio ya estaba guardado.'],
+  ['Un JSON por línea', 'NDJSON: cada línea es un componente; cada carácter se lee una sola vez.'],
+  ['Un dibujo por cuadro', 'junta lo que llegó con requestAnimationFrame: 70 partes por segundo no son 70 dibujos de pantalla.'],
+  ['Cada elemento con su id', 'si cambia el precio, cambias el precio, no la tarjeta completa.'],
+  ['Listas largas, pocos elementos', 'reutiliza unas pocas filas (o usa content-visibility) aunque haya 300 resultados.'],
+  ['Un solo lugar para los datos', 'un store por id; la IA manda cambios y cada parte de la pantalla escucha solo lo suyo.'],
+  ['Lo pesado, en paralelo', 'ordenar o filtrar en un Web Worker y mostrar una respuesta inmediata al clic.'],
 ];
 export const CHECKLIST_TITLE = '10 reglas para una UI generativa rápida';
 
-export const ASK_TOPICS = ['UI generativa', 'Streaming', 'Saltos (CLS)', 'DOM y listas', 'Estado', 'La demo Nido'] as const;
+export const ASK_TOPICS = ['UI generativa', 'Respuesta por partes', 'Saltos (CLS)', 'Listas largas', 'Datos y estado', 'La demo Nido'] as const;
 
 const S = (s: SlideContent) => s;
 
@@ -174,11 +174,11 @@ export const SLIDES: SlideContent[] = [
     section: S0,
     title: 'La IA ya no responde texto: responde interfaces',
     summary: [
-      'UI generativa: el modelo decide QUÉ mostrar (tarjetas, mapa, gráfico) según lo que pediste.',
-      'No genera HTML libre: elige piezas de TU catálogo y las describe en JSON.',
+      'UI generativa: el modelo de IA decide QUÉ mostrar (tarjetas, mapa, gráfico) según lo que pediste.',
+      'No inventa HTML: elige entre TUS componentes y los describe en JSON.',
       'Llega por partes (streaming): la página se construye mientras la persona ya la está usando.',
     ],
-    notes: 'Explica con el ejemplo de la demo: "Le pido: depa de 2 dormitorios en Barranco con vista al mar. No me contesta un párrafo: me arma tarjetas, un mapa y un gráfico de precios." Señala el diagrama de izquierda a derecha: pedido → modelo → JSON de piezas → tu código pinta. "Fíjense en la última flecha: la pintura es NUESTRA. Ahí está el problema de performance… y la solución."',
+    notes: 'Explica con el ejemplo de la demo: "Le pido: departamento de 2 dormitorios en Barranco con vista al mar. No me contesta un párrafo: me arma tarjetas, un mapa y un gráfico de precios." Señala el diagrama de izquierda a derecha: pedido → modelo → JSON de piezas → tu código pinta. "Fíjense en la última flecha: la pintura es NUESTRA. Ahí está el problema de performance… y la solución."',
     time: '1:45',
     inSummary: true,
   }),
@@ -202,13 +202,13 @@ export const SLIDES: SlideContent[] = [
     label: 'La metáfora',
     kind: 'content',
     section: S0,
-    title: 'Construir un depa mientras te dictan el plano',
+    title: 'Construir una casa mientras te dictan el plano',
     summary: [
-      'La IA dicta la interfaz por partes; el navegador construye en vivo, con la persona ya adentro.',
-      '4 reglas de obra: reserva el espacio · lee el plano una vez · recicla, no demuelas · una sola libreta.',
-      'Cada regla ataca una de las 4 cosas del título: renderizado, streaming, reciclaje del DOM y estado.',
+      'La IA dicta la interfaz por partes; el navegador la construye mientras escucha, y la persona ya la está usando.',
+      '4 reglas: reserva el espacio · lee cada parte una sola vez · reutiliza, no rehagas · un solo lugar para los datos.',
+      'Cada regla corresponde a un tema de la charla: cómo se dibuja (renderizado), cómo llega (streaming), reutilizar la pantalla (DOM) y los datos (estado).',
     ],
-    notes: 'ESTE es el mapa de la charla; vuelve a él al empezar cada capítulo. "Imaginen que construyen un depa en Miraflores mientras el arquitecto les dicta el plano por teléfono, palabra por palabra. Y la familia ya se mudó." Lee las 4 reglas en voz alta, despacio. "Si se quedan con estas 4 frases, la charla valió la pena."',
+    notes: 'ESTE es el mapa de la charla; vuelve a él al empezar cada capítulo. "Imaginen que construyen una casa mientras el arquitecto les dicta el plano por teléfono, palabra por palabra. Y la familia ya vive adentro." Lee las 4 reglas en voz alta, despacio. "Si se quedan con estas 4 frases, la charla valió la pena."',
     time: '3:45',
     inSummary: true,
   }),
@@ -217,11 +217,11 @@ export const SLIDES: SlideContent[] = [
     label: 'Demo · Nido',
     kind: 'demo',
     section: S0,
-    title: 'Nido: un buscador de depas con IA',
+    title: 'Nido: un buscador de departamentos con IA',
     summary: [
-      'Pides un depa en lenguaje natural y Nido arma resultados, mapa y gráfico en streaming.',
+      'Describes el departamento que buscas y Nido arma resultados, mapa y gráfico mientras llega la respuesta.',
       'Tiene "rayos X": cada regla se puede apagar y prender para ver la diferencia.',
-      'Precios y depas ficticios. Ábrela en tu laptop con el QR.',
+      'Precios y departamentos ficticios. Ábrela en tu laptop con el QR.',
     ],
     notes: 'Deja correr el clip 15 s. "Esta es la versión arreglada. Durante la charla vamos a romperla regla por regla." Rayos X: tecla X en la demo.',
     time: '4:45',
@@ -233,8 +233,8 @@ export const SLIDES: SlideContent[] = [
     kind: 'content',
     section: S1,
     title: 'Regla 1: reserva el espacio',
-    summary: ['No muevas las paredes con la gente adentro.'],
-    notes: 'Vuelve al mapa: "Regla 1, renderizado." Transición corta.',
+    summary: ['Guarda el lugar de cada parte antes de que llegue: así nada se mueve mientras la persona lee.'],
+    notes: 'Vuelve al mapa: "Regla 1, cómo se dibuja la pantalla." Transición corta.',
     time: '5:30',
   }),
   S({
@@ -244,9 +244,9 @@ export const SLIDES: SlideContent[] = [
     section: S1,
     title: 'Si no reservas, todo salta',
     summary: [
-      'Sin reserva: cada pieza que llega empuja a las de abajo. La persona pierde lo que estaba leyendo (CLS).',
+      'Sin reserva: cada componente que llega empuja a los de abajo. La persona pierde lo que estaba leyendo (CLS).',
       'Con reserva: el plano llega primero, cada sección ocupa su tamaño final y el contenido solo "rellena".',
-      'Es la estrategia de renderizado más barata: cero JavaScript extra.',
+      'Es la forma más barata de mejorar cómo se dibuja la página: no necesita JavaScript extra.',
     ],
     notes: 'Señala la columna roja: "el mapa llega tarde y empuja todo". Luego la verde: "los huecos ya estaban". "En UI generativa el modelo puede mandar el plano primero: qué secciones vienen. Con eso reservamos."',
     time: '5:45',
@@ -254,16 +254,16 @@ export const SLIDES: SlideContent[] = [
   }),
   S({
     id: 'espacio-codigo',
-    label: 'Plano + catálogo',
+    label: 'Plano primero',
     kind: 'content',
     section: S1,
     title: 'El plano primero; cada pieza con su tamaño',
     summary: [
-      'La primera línea del stream es el plano: qué secciones vienen.',
-      'Cada pieza del catálogo declara alto o aspect-ratio: el esqueleto ya tiene su forma final.',
+      'Lo primero que envía el modelo es el plano: qué secciones vienen.',
+      'Cada componente declara su alto o su proporción (aspect-ratio): el espacio ya tiene su forma final.',
     ],
     code: { file: 'demo-genui/src/genui/catalogo.ts', text: CODE_PLANO },
-    notes: 'Modo foco: 1) el plano, 2) las piezas, 3) el catálogo con medidas, 4) reservar(). "Las fotos llevan aspect-ratio: la imagen llega después, el hueco ya estaba."',
+    notes: 'Modo foco: 1) el plano, 2) los componentes, 3) las medidas de cada componente, 4) reservar(). "Las fotos llevan aspect-ratio: la imagen llega después, pero su espacio ya estaba guardado."',
     time: '6:30',
     inSummary: true,
   }),
@@ -273,7 +273,7 @@ export const SLIDES: SlideContent[] = [
     kind: 'demo',
     section: S1,
     title: 'Demo: los saltos, con y sin reserva',
-    summary: ['Rayos X marca en rojo cada salto. Con el plano y el catálogo, el CLS baja a casi cero.'],
+    summary: ['Rayos X marca en rojo cada salto. Con el plano primero, el CLS baja a casi cero.'],
     notes: 'Clip: izquierda sin reservar (recuadros rojos), derecha con reserva (bordes punteados). Lee los números del panel.',
     time: '7:15',
   }),
@@ -291,12 +291,12 @@ export const SLIDES: SlideContent[] = [
   // ── 02 ──
   S({
     id: 'sec-stream',
-    label: '02 Lee el plano una vez',
+    label: '02 Lee cada parte una vez',
     kind: 'content',
     section: S2,
-    title: 'Regla 2: lee el plano una sola vez',
-    summary: ['No vuelvas a leer el plano desde la primera página cada vez que te dictan una palabra.'],
-    notes: 'Vuelve al mapa: "Regla 2, streaming."',
+    title: 'Regla 2: lee cada parte una sola vez',
+    summary: ['No vuelvas a leer toda la respuesta desde el inicio cada vez que llega una parte nueva.'],
+    notes: 'Vuelve al mapa: "Regla 2, la respuesta que llega por partes."',
     time: '8:45',
   }),
   S({
@@ -306,11 +306,11 @@ export const SLIDES: SlideContent[] = [
     section: S2,
     title: '¿Cómo llega la respuesta?',
     summary: [
-      'JSON completo: hay que esperar al final (o intentar "reparar" el JSON a medias).',
-      'JSON por líneas (NDJSON): cada línea es una pieza completa; se pinta apenas llega.',
-      'HTML en streaming: el navegador lo pinta solo, pero pierdes el control del catálogo.',
+      'JSON completo: hay que esperar al final (o intentar "arreglar" el JSON incompleto).',
+      'JSON por líneas (NDJSON): cada línea es un componente completo; se dibuja apenas llega.',
+      'HTML por partes: el navegador lo dibuja solo, pero no controlas qué componentes se usan.',
     ],
-    notes: '"El modelo escribe token por token. ¿En qué formato le pedimos que escriba?" Recomienda NDJSON para UI generativa: cada línea es una pieza válida del catálogo. HTML en streaming sirve para contenido, no para piezas interactivas.',
+    notes: '"El modelo escribe token por token. ¿En qué formato le pedimos que escriba?" Recomienda NDJSON para UI generativa: cada línea es un componente completo. HTML por partes sirve para texto, no para componentes interactivos.',
     time: '9:00',
     inSummary: true,
   }),
@@ -319,13 +319,13 @@ export const SLIDES: SlideContent[] = [
     label: 'Releer todo',
     kind: 'content',
     section: S2,
-    title: 'El error típico: releer todo con cada trozo',
+    title: 'El error típico: releer todo con cada parte',
     summary: [
-      'Si con cada trozo haces JSON.parse de TODO lo recibido, lees el inicio cientos de veces.',
-      'Y si pintas con cada trozo, haces cientos de renders que nadie llega a ver.',
-      'La pantalla solo se actualiza ~60 veces por segundo: pinta una vez por frame.',
+      'Si con cada parte haces JSON.parse de TODO lo recibido, lees el inicio cientos de veces.',
+      'Y si dibujas la pantalla con cada parte, la dibujas cientos de veces sin que nadie lo note.',
+      'La pantalla solo se actualiza unas 60 veces por segundo: basta con dibujar una vez por cuadro (frame).',
     ],
-    notes: 'La imagen del libro: "Es como releer el plano desde la página 1 cada vez que el arquitecto dice una palabra." Señala los contadores: caracteres leídos y renders. No digas O(n²): di "crece al cuadrado: el doble de respuesta, cuatro veces el trabajo".',
+    notes: 'La imagen del libro: "Es como releer el plano desde la página 1 cada vez que el arquitecto dice una palabra." Señala los contadores: caracteres leídos y veces que se dibuja. No digas O(n²): di "crece al cuadrado: el doble de respuesta, cuatro veces el trabajo".',
     time: '10:00',
     inSummary: true,
   }),
@@ -334,35 +334,35 @@ export const SLIDES: SlideContent[] = [
     label: 'Parser + frame',
     kind: 'content',
     section: S2,
-    title: 'Una línea, una pieza. Un frame, un render.',
+    title: 'Cada línea, una vez. Un dibujo por cuadro.',
     summary: [
-      'Divide por saltos de línea y guarda el pedazo incompleto para el siguiente trozo.',
-      'Acumula las piezas y aplícalas juntas en requestAnimationFrame.',
+      'Separa por saltos de línea y guarda la línea incompleta para cuando llegue la siguiente parte.',
+      'Junta los componentes que llegaron y dibújalos de una vez con requestAnimationFrame.',
     ],
     code: { file: 'demo-genui/src/genui/stream.ts', text: CODE_PARSER },
-    notes: 'Modo foco: el antes (2 líneas) y el después. "resto guarda la línea a medias. Y programarRender junta todo lo que llegó en un frame."',
+    notes: 'Modo foco: el antes (2 líneas) y el después. "resto guarda la línea incompleta. Y programarRender junta todo lo que llegó y dibuja una vez por cuadro."',
     time: '10:45',
     inSummary: true,
   }),
   S({
     id: 'clip-stream',
-    label: 'Demo · Streaming',
+    label: 'Demo · Leer una vez',
     kind: 'demo',
     section: S2,
-    title: 'Demo: el mismo stream, leído una vez',
-    summary: ['Mismo stream, mismos depas: muchísimos menos caracteres leídos y renders.'],
-    notes: 'Clip: el panel "Plano dictado" muestra el stream; mira los contadores bajar.',
+    title: 'Demo: la misma respuesta, leída una sola vez',
+    summary: ['Misma respuesta, mismos departamentos: muchísimos menos caracteres leídos y veces que se dibuja.'],
+    notes: 'Clip: el panel "Lo que envía la IA" muestra la respuesta en crudo; mira los contadores bajar.',
     time: '11:45',
   }),
   // ── 03 ──
   S({
     id: 'sec-reciclar',
-    label: '03 Recicla, no demuelas',
+    label: '03 Reutiliza, no rehagas',
     kind: 'content',
     section: S3,
-    title: 'Regla 3: recicla, no demuelas',
-    summary: ['Para cambiar un mueble no tiras el depa.'],
-    notes: 'Vuelve al mapa: "Regla 3, reciclaje del DOM."',
+    title: 'Regla 3: reutiliza, no rehagas',
+    summary: ['Para cambiar un precio no hace falta volver a crear toda la lista.'],
+    notes: 'Vuelve al mapa: "Regla 3, reutilizar lo que ya está en pantalla."',
     time: '12:30',
   }),
   S({
@@ -370,10 +370,10 @@ export const SLIDES: SlideContent[] = [
     label: 'Claves estables',
     kind: 'content',
     section: S3,
-    title: 'Cada pieza tiene su id: cambia solo lo que cambió',
+    title: 'Cada elemento tiene su id: cambia solo lo que cambió',
     summary: [
-      'La IA corrige mientras escribe ("el precio real es S/ 2.790"). Con innerHTML, recreas toda la lista.',
-      'Con un nodo por id, solo cambia el texto del precio: menos trabajo, y no pierdes foco ni scroll.',
+      'La IA corrige mientras escribe ("el precio real es S/ 2.790"). Con innerHTML vuelves a crear toda la lista.',
+      'Con un elemento por id, solo cambia el texto del precio: menos trabajo, y no se pierde el foco ni el scroll.',
     ],
     code: { file: 'demo-genui/src/genui/render.ts', text: CODE_CLAVES },
     notes: 'Modo foco. "Recrear nodos es caro y además rompe cosas: si la persona estaba escribiendo o tenía el foco en un botón, lo pierde."',
@@ -385,10 +385,10 @@ export const SLIDES: SlideContent[] = [
     label: 'Listas largas',
     kind: 'content',
     section: S3,
-    title: 'Listas largas, DOM corto',
+    title: 'Listas largas, pocos elementos en pantalla',
     summary: [
-      '300 resultados no son 300 tarjetas en el DOM: recicla unas 20 y cambia su contenido al hacer scroll.',
-      'Alternativa simple: content-visibility: auto con contain-intrinsic-size (el navegador se salta lo que no se ve).',
+      '300 resultados no son 300 tarjetas en pantalla: reutiliza unas pocas filas y cambia su contenido al hacer scroll.',
+      'Alternativa simple: content-visibility: auto con contain-intrinsic-size (el navegador no dibuja lo que no se ve).',
     ],
     notes: 'Diagrama de la cinta: "Como la vitrina de una pastelería: los mismos platos, distinto postre." Menciona que el clip compara nodos.',
     time: '13:45',
@@ -396,12 +396,12 @@ export const SLIDES: SlideContent[] = [
   }),
   S({
     id: 'clip-reciclar',
-    label: 'Demo · Reciclar',
+    label: 'Demo · Reutilizar',
     kind: 'demo',
     section: S3,
-    title: 'Demo: demoler vs. reciclar',
-    summary: ['Rayos X pinta de naranja lo que se crea y de verde lo que se reutiliza.'],
-    notes: 'Clip: llegan correcciones de precio. Rojo/naranja = nodos nuevos; verde = reciclados.',
+    title: 'Demo: rehacer todo vs. reutilizar',
+    summary: ['Rayos X marca en naranja lo que se crea y en verde lo que se reutiliza.'],
+    notes: 'Clip: llegan correcciones de precio. Naranja = elementos nuevos; verde = reutilizados.',
     time: '14:30',
   }),
   S({
@@ -410,7 +410,7 @@ export const SLIDES: SlideContent[] = [
     kind: 'poll',
     qid: 'q2',
     section: S3,
-    title: 'Pregunta 2 · Streaming y DOM',
+    title: 'Pregunta 2 · Leer y reutilizar',
     summary: [],
     notes: 'Espera ~25 s y revela con V.',
     time: '15:15',
@@ -418,26 +418,26 @@ export const SLIDES: SlideContent[] = [
   // ── 04 ──
   S({
     id: 'sec-estado',
-    label: '04 Una sola libreta',
+    label: '04 Un solo lugar para los datos',
     kind: 'content',
     section: S4,
-    title: 'Regla 4: una sola libreta de obra',
-    summary: ['La IA dicta qué; tu código calcula cuánto.'],
-    notes: 'Vuelve al mapa: "Regla 4, estado."',
+    title: 'Regla 4: un solo lugar para los datos',
+    summary: ['La IA decide qué mostrar; tu código hace las cuentas.'],
+    notes: 'Vuelve al mapa: "Regla 4, dónde viven los datos."',
     time: '16:00',
   }),
   S({
     id: 'estado-libreta',
-    label: 'La libreta',
+    label: 'Los datos',
     kind: 'content',
     section: S4,
-    title: 'La IA dicta qué; tu código calcula cuánto',
+    title: 'La IA decide qué mostrar; tu código hace las cuentas',
     summary: [
-      'Todo lo que llega va a una sola libreta (store) indexada por id.',
-      'Cada pieza escucha solo su id: si cambia un precio, se repinta una tarjeta, no la página.',
-      'Lo que se calcula (ordenar, filtrar, totales) no se le pide al modelo: lo hace tu código, y si pesa, en un Worker.',
+      'Todo lo que llega se guarda en un solo lugar (store), ordenado por id.',
+      'Cada tarjeta escucha solo su id: si cambia un precio, se actualiza esa tarjeta, no la página entera.',
+      'Lo que se calcula (ordenar, filtrar, totales) no se le pide al modelo: lo hace tu código, y si es pesado, en un Web Worker (en paralelo, sin congelar la página).',
     ],
-    notes: 'Diagrama: stream → libreta → piezas. "El error común: pedirle al modelo que vuelva a generar la lista ordenada. Es lento, caro y puede equivocarse. Ordenar es trabajo de tu código."',
+    notes: 'Diagrama: lo que llega → los datos en un solo lugar → la pantalla. "El error común: pedirle al modelo que vuelva a generar la lista ordenada. Es lento, caro y puede equivocarse. Ordenar es trabajo de tu código."',
     time: '16:15',
     inSummary: true,
   }),
@@ -446,13 +446,13 @@ export const SLIDES: SlideContent[] = [
     label: 'Store + Worker',
     kind: 'content',
     section: S4,
-    title: 'Libreta por id + Worker para lo pesado',
+    title: 'Datos por id + Worker para lo pesado',
     summary: [
-      'anotar(id, cambio) actualiza y avisa solo a quien usa ese id.',
-      'Al clic: feedback inmediato (aria-busy) y el cálculo pesado en un Worker. Así el INP se queda en verde.',
+      'anotar(id, cambio) actualiza el dato y avisa solo a quien usa ese id.',
+      'Al hacer clic: respuesta inmediata en pantalla (aria-busy) y el cálculo pesado en un Worker. Así el INP se queda en verde.',
     ],
     code: { file: 'demo-genui/src/genui/estado.ts', text: CODE_ESTADO },
-    notes: 'Modo foco. "aria-busy pinta un spinner en el mismo frame del clic: eso es lo que mide INP."',
+    notes: 'Modo foco. "aria-busy muestra el indicador de carga en el mismo instante del clic: eso es lo que mide INP."',
     time: '17:00',
     inSummary: true,
   }),
@@ -462,7 +462,7 @@ export const SLIDES: SlideContent[] = [
     kind: 'demo',
     section: S4,
     title: 'Demo: ordenar mientras la IA escribe',
-    summary: ['Ordenar 300 depas en el hilo principal congela la página; en un Worker, el clic responde al instante.'],
+    summary: ['Ordenar 300 departamentos en el hilo principal congela la página; en un Worker, el clic responde al instante.'],
     notes: 'Clip: el contador de INP en rojo vs verde.',
     time: '17:45',
   }),
@@ -473,9 +473,9 @@ export const SLIDES: SlideContent[] = [
     section: S5,
     title: 'Cómo comprobarlo en tu app (sin enredarte)',
     summary: [
-      'Performance de DevTools: CPU 4× más lenta, graba, genera una respuesta y detén.',
+      'En DevTools → Performance: simula un procesador 4× más lento, graba, pide una respuesta y detén.',
       'Insights te dice qué saltó (Layout shift culprits) y qué clic tardó (INP breakdown).',
-      'Ponle nombre a tu trabajo: performance.measure con una pista propia ("Nido · UI generativa").',
+      'Ponle nombre a tu trabajo: con performance.measure aparece tu propia línea ("Nido · UI generativa") en el panel.',
     ],
     code: { file: 'demo-genui/src/lab/pistas.ts', text: CODE_PISTA },
     notes: '"En la otra charla, Chrome DevTools para agentes, vemos cómo un agente de código hace esto por ti." Modo foco en la pista.',
@@ -492,7 +492,7 @@ export const SLIDES: SlideContent[] = [
       'Prende rayos X (tecla X), apaga las 4 reglas y genera: mira saltos, contadores y el INP.',
       'Prende una regla a la vez y vuelve a generar con el mismo pedido.',
     ],
-    notes: 'Guion (6 min): 1) Botón "Todo roto", CPU 4× en DevTools, generar "depa 2 dorms Barranco vista al mar". 2) Regla 1 → generar (CLS). 3) Regla 2 → generar (caracteres y renders). 4) Regla 3 → "Actualizar precios" (nodos). 5) "Ordenar por precio/m²" con regla 4 apagada y prendida (INP). Si algo falla: los clips de cada capítulo.',
+    notes: 'Guion (6 min): 1) Botón "Todo roto", CPU 4× en DevTools, generar "departamento de 2 dormitorios en Barranco con vista al mar". 2) Regla 1 → generar (CLS). 3) Regla 2 → generar (caracteres y veces que dibuja). 4) Regla 3 → "Actualizar precios" (elementos creados). 5) "Ordenar por precio/m²" con regla 4 apagada y prendida (INP). Si algo falla: los clips de cada capítulo.',
     time: '19:15',
   }),
   S({
@@ -500,12 +500,12 @@ export const SLIDES: SlideContent[] = [
     label: 'Las 4 reglas',
     kind: 'content',
     section: S5,
-    title: 'Las 4 reglas de obra',
+    title: 'Las 4 reglas',
     summary: [
-      'Reserva el espacio: el plano primero, cada pieza con su tamaño.',
-      'Lee el plano una vez: NDJSON y un render por frame.',
-      'Recicla, no demuelas: un nodo por id; listas con pocos nodos.',
-      'Una sola libreta: store por id; lo pesado en un Worker.',
+      'Reserva el espacio: el plano primero, cada componente con su tamaño.',
+      'Lee cada parte una vez: un JSON por línea y un dibujo por cuadro.',
+      'Reutiliza, no rehagas: un elemento por id; listas con pocas filas.',
+      'Un solo lugar para los datos: guardados por id; lo pesado en un Worker.',
     ],
     notes: 'Recap lento, una por una, señalando cada estación.',
     time: '25:15',
@@ -517,7 +517,7 @@ export const SLIDES: SlideContent[] = [
     kind: 'poll',
     qid: 'q3',
     section: S5,
-    title: 'Pregunta 3 · Estado',
+    title: 'Pregunta 3 · Los datos',
     summary: [],
     notes: 'Espera ~25 s y revela con V.',
     time: '26:00',

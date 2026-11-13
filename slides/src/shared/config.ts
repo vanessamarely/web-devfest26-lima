@@ -46,7 +46,7 @@ export const TALKS: Record<TalkId, TalkMeta> = {
     short: 'UI generativa rápida',
     deckPath: '/genui/',
     demoName: 'Nido',
-    demoTagline: 'Buscador de depas con IA',
+    demoTagline: 'Buscador de departamentos con IA',
     skillName: 'genui-performance',
     skillLabel: 'Guía de performance para UI generativa (para tu agente de código)',
     demoEnv: import.meta.env.VITE_DEMO_GENUI_URL as string | undefined,

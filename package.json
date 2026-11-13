@@ -1,7 +1,7 @@
 {
   "name": "web-devfest26-lima",
   "private": true,
-  "description": "DevFest Lima 2026 — dos charlas: Web performance en la era de la UI generativa (Día 1, demo Nido) y Chrome DevTools para agentes (Día 2, demo Mesa). Decks interactivos, app de asistentes y muro de pelícanos compartido.",
+  "description": "DevFest Lima 2026, dos charlas: Web performance en la era de la UI generativa (Día 1, demo Nido) y Chrome DevTools para agentes (Día 2, demo Mesa). Decks interactivos, app de asistentes y muro de avatares compartido.",
   "workspaces": [
     "slides",
     "demo-genui",

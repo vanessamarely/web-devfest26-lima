@@ -59,6 +59,26 @@ describe('asistente · Día DevTools para agentes', () => {
   });
 });
 
+describe('preguntas generales', () => {
+  it.each([
+    ['/genui/', 'explícame el tema'],
+    ['/genui/', '¿De qué trata la charla?'],
+    ['/genui/', 'no entendí, resúmelo'],
+    ['/agentes/', 'explícame el tema'],
+    ['/agentes/', '¿Cuál es la idea principal?'],
+  ])('%s · %s → resumen de la charla', async (path, q) => {
+    const a = await cargar(path);
+    const r = a.buscar(q);
+    expect(a.esDeLaCharla(r)).toBe(true);
+    expect(r.map((x) => x.fuente.id)).toContain('checklist');
+    expect(a.respuestaSinModelo(q).texto).toMatch(/en pocas palabras/);
+  });
+  it('una pregunta concreta sigue yendo a su slide', async () => {
+    const a = await cargar('/genui/');
+    expect(a.buscar('explícame el NDJSON')[0].fuente.id).not.toBe('que-es-genui');
+  });
+});
+
 describe('Gemini Nano', () => {
   it('sin Prompt API: estado sin-api', async () => {
     const a = await cargar('/genui/');
