@@ -3,10 +3,11 @@
 //  · La consola de la presentadora lee `notes` (guion) y `time`.
 //  · La memoria descargable usa `summary` de TODOS los slides, aunque alguien llegue tarde.
 //  · El contenido de cada charla vive en talks/genui.ts (Día 1) y talks/agentes.ts (Día 2).
-import { TALK } from './config';
+import { BREVE, TALK } from './config';
 import type { QuestionId } from './questions';
 import { genui } from './talks/genui';
 import { agentes } from './talks/agentes';
+import { armarBreve } from './talks/agentes-breve';
 
 export type LiveKind = 'content' | 'join' | 'demo' | 'poll' | 'wall' | 'podium' | 'end';
 
@@ -44,7 +45,8 @@ export interface TalkContent {
 }
 
 export const CONTENT_BY_TALK = { genui, agentes } as const;
-const C = CONTENT_BY_TALK[TALK];
+/** La versión breve de la charla 2 (/agentes-breve/) usa un subconjunto de sus slides. */
+const C = BREVE ? armarBreve(agentes) : CONTENT_BY_TALK[TALK];
 
 export const SLIDES = C.SLIDES;
 export const CHECKLIST = C.CHECKLIST;

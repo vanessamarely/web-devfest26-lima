@@ -22,9 +22,11 @@ import {
   LayoutGrid,
   LayoutTemplate,
   List,
+  MessageCircleQuestion,
   MessageSquareText,
   MousePointerClick,
   Move,
+  NotebookPen,
   Play,
   Radio,
   Recycle,
@@ -43,7 +45,7 @@ import {
   createIcons,
 } from 'lucide';
 import { CHECKLIST, CODE, CODE_LANG, SLIDE_BY_ID } from '../shared/content';
-import { DEMO_URL, META, NS, OTHER_TALK, TALK, diaDe, getPrimera, setPrimera, PUBLIC_DEMO_URL, REPO_URL, TALKS, prettyUrl, publicLiveUrl, withSessionParams } from '../shared/config';
+import { BREVE, DEMO_URL, META, NS, OTHER_TALK, TALK, diaDe, getPrimera, setPrimera, PUBLIC_DEMO_URL, REPO_URL, TALKS, prettyUrl, publicLiveUrl, withSessionParams } from '../shared/config';
 import { avatarSVG, type AvatarOptions } from '../shared/avatar';
 import { QUESTIONS, type QuestionId } from '../shared/questions';
 import { esc } from '../shared/esc';
@@ -234,7 +236,7 @@ menu.innerHTML = `
   <button type="button" data-act="rail">Panel de miniaturas <kbd>S</kbd></button>
   ${soloPresentadora('<button type="button" data-act="joinqr">QR para unirse en cada slide <kbd>J</kbd></button>')}
   ${soloPresentadora('<button type="button" data-act="present" data-presenter-only>Presentar en vivo (GitHub)</button>')}
-  <button type="button" data-act="answers" data-presenter-ui hidden>Cargar respuestas del podio… <kbd data-answers-status></kbd></button>
+  ${BREVE ? '' : '<button type="button" data-act="answers" data-presenter-ui hidden>Cargar respuestas del podio… <kbd data-answers-status></kbd></button>'}
   <button type="button" data-act="questions" data-presenter-ui hidden>Preguntas del público <kbd><span data-q-count>0</span> · Q</kbd></button>
   <button type="button" data-act="wipe" data-presenter-ui hidden>Vaciar sesión en vivo…</button>
   <div class="group">Ir a</div>
@@ -337,7 +339,7 @@ setTimeout(() => {
 renderMenuList();
 
 createIcons({
-  icons: { Accessibility, Activity, ArrowUpRight, Bot, Braces, Camera, CirclePlay, Code, Cpu, Download, EyeOff, FileCode, Gauge, GitBranch, Globe, History, Hourglass, Image, LayoutGrid, LayoutTemplate, List, MessageSquareText, MousePointerClick, Move, Play, Radio, Recycle, Repeat, ScanEye, ShieldCheck, Smartphone, Snowflake, Sparkles, Terminal, Trophy, User, Users, Wifi, Wrench },
+  icons: { Accessibility, Activity, ArrowUpRight, Bot, Braces, Camera, CirclePlay, Code, Cpu, Download, EyeOff, FileCode, Gauge, GitBranch, Globe, History, Hourglass, Image, LayoutGrid, LayoutTemplate, List, MessageCircleQuestion, MessageSquareText, MousePointerClick, Move, NotebookPen, Play, Radio, Recycle, Repeat, ScanEye, ShieldCheck, Smartphone, Snowflake, Sparkles, Terminal, Trophy, User, Users, Wifi, Wrench },
   attrs: { 'stroke-width': 1.75, 'aria-hidden': 'true' },
 });
 dispatchEvent(new Event('tweakchange'));

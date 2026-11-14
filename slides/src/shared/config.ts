@@ -137,9 +137,15 @@ function remember(t: TalkId): TalkId {
 }
 
 export const TALK: TalkId = detectTalk();
+/**
+ * Versión breve de la charla 2 (10 min): /agentes-breve/ (o ?breve en el celular y la consola).
+ * Sin preguntas ni podio; el muro y los avatares siguen, pero no suman puntos. Sesión propia.
+ */
+export const BREVE = TALK === 'agentes' && (location.pathname.startsWith('/agentes-breve') || params.has('breve'));
+if (BREVE && typeof document !== 'undefined') document.documentElement.dataset.breve = '';
 marcarOrden();
 export const OTHER_TALK: TalkId = TALK === 'genui' ? 'agentes' : 'genui';
-export const META = TALKS[TALK];
+export const META: TalkMeta = BREVE ? { ...TALKS[TALK], deckPath: '/agentes-breve/' } : TALKS[TALK];
 export const TALK_TITLE = META.title;
 export const TALK_TITLE_ES = META.titleEs;
 
@@ -147,7 +153,7 @@ export const TALK_TITLE_ES = META.titleEs;
 export const SESSION_PARAM = params.get('session');
 const sessionBase = SESSION_PARAM || (import.meta.env.VITE_SESSION_BASE as string | undefined) || 'devfest-lima-2026';
 export const sessionFor = (t: TalkId) => `${sessionBase}-${t}`;
-export const SESSION_ID = sessionFor(TALK);
+export const SESSION_ID = sessionFor(TALK) + (BREVE ? '-breve' : '');
 /** La sesión de la otra charla: de ahí sale el bono +200 por traer tu pelícano. */
 export const OTHER_SESSION_ID = sessionFor(OTHER_TALK);
 
@@ -184,6 +190,7 @@ export const PUBLIC_DEMO_URL = META.demoEnv || META.demoFallback;
 export function withSessionParams(path: string): string {
   const url = new URL(path, location.origin);
   url.searchParams.set('talk', TALK);
+  if (BREVE) url.searchParams.set('breve', '1');
   if (SESSION_PARAM) url.searchParams.set('session', SESSION_PARAM);
   if (params.has('local')) url.searchParams.set('local', '');
   return url.toString();
@@ -200,6 +207,7 @@ export function publicLiveUrl(): string {
   const origin = isLocalHost && !params.has('local') && published ? published : location.origin;
   const url = new URL('/live/', origin);
   url.searchParams.set('talk', TALK);
+  if (BREVE) url.searchParams.set('breve', '1');
   if (SESSION_PARAM) url.searchParams.set('session', SESSION_PARAM);
   if (params.has('local')) url.searchParams.set('local', '');
   return url.toString();

@@ -349,3 +349,6 @@ main { max-width: 520px; margin: 0 auto; min-height: 60dvh; }
   .asis { padding: 14px 14px max(14px, env(safe-area-inset-bottom)); }
   .msg .a { max-width: 100%; }
 }
+
+/* Versión breve de la charla 2: sin preguntas ni puntos */
+:root[data-breve] .pts { display: none !important; }

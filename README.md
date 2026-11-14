@@ -14,6 +14,7 @@ Charlas técnicas de [Vanessa Aristizabal](https://github.com/vanessamarely) en 
 | Portada (elige la charla) | https://devfest-lima-slides.web.app |
 | Deck Día 1 (proyector) | https://devfest-lima-slides.web.app/genui/?presenter=1 |
 | Deck Día 2 (proyector) | https://devfest-lima-slides.web.app/agentes/?presenter=1 |
+| Deck Día 2, versión breve (10 min, sin preguntas ni podio) | https://devfest-lima-slides.web.app/agentes-breve/?presenter=1 · consola: `/presenter/?talk=agentes&breve=1` |
 | App de asistentes (QR) | https://devfest-lima-slides.web.app/live/?talk=genui · `?talk=agentes` |
 | Consola de la presentadora | https://devfest-lima-slides.web.app/presenter/?talk=genui · `?talk=agentes` |
 | Demo Nido · comparador | https://devfest-lima-nido.web.app · https://devfest-lima-nido.web.app/compare |

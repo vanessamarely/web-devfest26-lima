@@ -9,7 +9,7 @@
 //  · Avatar y memoria se generan EN EL DISPOSITIVO: tus notas nunca salen del teléfono.
 import { Brain, Check, Circle, Diamond, Download, FileText, Flame, GitBranch, Heart, MessageCircleQuestion, Moon, NotebookPen, Radio, Send, Shuffle, Sparkles, Square, Sun, SunMoon, Triangle, Trophy, Map as MapIcon, X, createElement, createIcons, type IconNode } from 'lucide';
 import { SLIDES, SLIDE_BY_ID, type SlideContent } from '../shared/content';
-import { EVENT, META, NS, OTHER_TALK, PUBLIC_DEMO_URL, REPO_URL, SKILL_LABEL, SKILL_URL, TALK, TALKS, TALK_TITLE, setPrimera } from '../shared/config';
+import { BREVE, EVENT, META, NS, OTHER_TALK, PUBLIC_DEMO_URL, REPO_URL, SKILL_LABEL, SKILL_URL, TALK, TALKS, TALK_TITLE, setPrimera } from '../shared/config';
 import { downloadFile, keepsakeHTML, keepsakeMarkdown, type SavedNote } from '../shared/keepsake';
 import { ABAJOS, ACCESORIOS, COLORES_PELO, DEFAULT_AVATAR, EXPRESIONES, GORROS, LENTES, LEYENDA, MENSAJES, PELOS, PIELES, RASGOS, ROPAS, avatarPNG, avatarSilhouette, avatarSVG, diffAvatar, normalizeAvatar, randomAvatar, type AvatarOptions } from '../shared/avatar';
 import { claimUniqueName, cleanName, randomName, TOTAL_COMBINATIONS } from '../shared/names';
@@ -212,6 +212,10 @@ function renderMe() {
 }
 function renderScore() {
   const el = $('[data-score]');
+  if (BREVE) {
+    el.hidden = true; // versión breve: sin preguntas ni puntos
+    return;
+  }
   const n = correctCount(myVotes, live?.answers ?? {});
   const answered = Object.keys(myVotes).length;
   el.hidden = !answered;
@@ -248,7 +252,7 @@ function renderJoin(screen: HTMLElement, msg = '') {
       <div class="weave-strip" aria-hidden="true"></div>
       <p class="kicker">¡Hola, Lima! · ${esc(EVENT)} · ${esc(META.day)}</p>
       <h1>${otherName ? '¡Volviste! Elige tu apodo' : 'Elige tu apodo'}</h1>
-      <p class="muted">Es único en la sala: si alguien ya lo tiene, te damos el mismo con un número. Aparece en el podio y en el muro. Sin correo, sin contraseña.</p>
+      <p class="muted">Es único en la sala: si alguien ya lo tiene, te damos el mismo con un número. Aparece<span class="pts"> en el podio y</span> en el muro. Sin correo, sin contraseña.</p>
       <div class="name-options" role="radiogroup" aria-label="Apodos">${
         options.length ? options.map((o, i) => `<button type="button" role="radio" aria-checked="${i === 0}" data-name="${esc(o)}">${esc(o)}</button>`).join('') : '<p class="muted">Buscando apodos libres…</p>'
       }</div>
@@ -307,7 +311,7 @@ function renderLive(force = false) {
 
   if (!c) {
     screen.innerHTML = `<section class="card-sheet"><p class="kicker">Hola, ${esc(name)}</p><h1>La charla está por empezar</h1>
-      <p class="muted">Cuando la presentadora avance, aquí verás cada slide con sus ideas clave, las preguntas del podio y podrás tomar notas.</p>
+      <p class="muted">Cuando la presentadora avance, aquí verás cada slide con sus ideas clave<span class="pts">, las preguntas del podio</span> y podrás tomar notas.</p>
       <button class="btn wide" type="button" data-go-avatar>${icon(Sparkles, 18)} ${avatar.saved ? 'Editar mi avatar' : 'Crear mi avatar mientras espero'}</button></section>`;
     $('[data-go-avatar]', screen).addEventListener('click', () => go('avatar'));
     return;
@@ -436,8 +440,8 @@ function renderLobby(screen: HTMLElement) {
     <p class="kicker">Hola, ${esc(name)}</p>
     <h1>¡Estás dentro!</h1>
     <div class="lobby-dolls" aria-hidden="true">${LOBBY.map((o) => avatarSVG(o)).join('')}</div>
-    <p class="muted">En cada slide verás las ideas clave y podrás escribir tus notas. Hay <b>3 preguntas</b> por el podio: responde rápido. Si estás escribiendo, <b>la app no te cambia de slide</b> hasta que guardes.</p>
-    ${otherAvatar ? `<p class="return-note">${icon(Sparkles, 16)} Tu avatar del <b>${esc(TALKS[OTHER_TALK].day)}</b> volvió: cámbiale lo que quieras para hoy. Por traerlo sumas <b>+200</b>.</p>` : `<p class="legend">${esc(LEYENDA)}</p>`}
+    <p class="muted">En cada slide verás las ideas clave y podrás escribir tus notas. <span class="pts">Hay <b>3 preguntas</b> por el podio: responde rápido. </span>Si estás escribiendo, <b>la app no te cambia de slide</b> hasta que guardes.</p>
+    ${otherAvatar ? `<p class="return-note">${icon(Sparkles, 16)} Tu avatar del <b>${esc(TALKS[OTHER_TALK].day)}</b> volvió: cámbiale lo que quieras para hoy.<span class="pts"> Por traerlo sumas <b>+200</b>.</span></p>` : `<p class="legend">${esc(LEYENDA)}</p>`}
     <button class="btn wide primary" type="button" data-go-avatar>${icon(Sparkles, 18)} ${otherAvatar || avatar.saved ? 'Editar mi avatar' : 'Crear mi avatar'}</button>
   </section>`;
   $('[data-go-avatar]', screen).addEventListener('click', () => go('avatar'));
@@ -546,7 +550,7 @@ function renderWallCta(screen: HTMLElement) {
     <p class="kicker">Muro de avatares</p>
     <h1>${avatar.published ? '¡Tu avatar está en la pantalla!' : '¿Ya creaste tu avatar?'}</h1>
     ${avatar.saved ? `<div class="end-doll">${avatarSVG(avatar.opts, avatar.name)}<div><b>${esc(avatar.name)}</b><span>“${esc(MENSAJES[avatar.mensaje])}”</span></div></div>` : ''}
-    <p class="muted">Se dibuja en tu celular; al muro solo viajan las opciones que elegiste. Publicarlo suma <b>+100</b>${otherAvatar ? ' y traerlo de la otra charla, <b>+200</b>' : ''}.</p>
+    <p class="muted">Se dibuja en tu celular; al muro solo viajan las opciones que elegiste.<span class="pts"> Publicarlo suma <b>+100</b>${otherAvatar ? ' y traerlo de la otra charla, <b>+200</b>' : ''}.</span></p>
     <button class="btn wide primary" type="button" data-go-avatar>${icon(Sparkles, 18)} ${avatar.saved ? 'Editar mi avatar' : 'Crear mi avatar'}</button>
   </section>`;
   $('[data-go-avatar]', screen).addEventListener('click', () => go('avatar'));
@@ -685,7 +689,7 @@ function renderAvatar(screen: HTMLElement) {
     <div class="creator-head"><p class="kicker">Mi avatar · ${esc(META.day)}</p><button class="icon-btn" type="button" data-close aria-label="Cerrar">${icon(X, 20)}</button></div>
     ${
       otherAvatar
-        ? `<p class="return-note">${icon(Sparkles, 16)} Tu avatar del <b>${esc(TALKS[OTHER_TALK].day)}</b> volvió (<b>+200</b>). Cada charla guarda su propia versión: cámbiale la ropa, el gorro o lo que lleva para hoy.
+        ? `<p class="return-note">${icon(Sparkles, 16)} Tu avatar del <b>${esc(TALKS[OTHER_TALK].day)}</b> volvió<span class="pts"> (<b>+200</b>)</span>. Cada charla guarda su propia versión: cámbiale la ropa, el gorro o lo que lleva para hoy.
            <span data-diff>${changes.length ? `Hoy cambiaste: ${esc(changes.join(', '))}.` : 'Todavía está igual que en la otra charla.'}</span>
            <button class="link" type="button" data-restore>Volver a como estaba</button></p>`
         : ''
@@ -702,7 +706,7 @@ function renderAvatar(screen: HTMLElement) {
       <button class="btn" type="button" data-download>${icon(Download, 18)} Descargar PNG</button>
       <button class="btn primary" type="button" data-save>${icon(Check, 18)} ${avatar.saved ? 'Guardado' : 'Guardar en mi memoria'}</button>
     </div>
-    <button class="btn wide" type="button" data-publish>${icon(Send, 18)} ${avatar.published ? 'Actualizar en el muro' : 'Publicar en el muro (+100)'}</button>
+    <button class="btn wide" type="button" data-publish>${icon(Send, 18)} ${avatar.published ? 'Actualizar en el muro' : 'Publicar en el muro<span class="pts"> (+100)</span>'}</button>
     <p class="fine" data-msg role="status"></p>
   </section>`;
 
@@ -941,7 +945,7 @@ function openAsistente() {
       <div class="a"><span class="motor">${m.motor === 'nano' ? '✦ Gemini Nano' : m.motor === 'nube' ? '✦ Gemini' : '📖 De la charla'}</span><div class="txt" data-txt>${m.a ? formatear(m.a) : m.cancelada ? '-' : '<span class="pensando">Pensando…</span>'}</div>
       ${m.cancelada ? '<p class="fine">Cancelada: hiciste otra pregunta.</p>' : ''}
       ${m.fuentes.length ? `<p class="fuentes">${m.fuentes.filter((f, i, l) => l.findIndex((x) => x.n === f.n) === i).map((f) => `<span>Slide ${f.n} · ${esc(f.titulo)}</span>`).join('')}</p>` : ''}
-      ${m.enviada ? '<p class="fine enviada">✓ Enviada a Vanessa</p>' : `<button class="link" type="button" data-enviar>¿No te sirvió? Enviar mi pregunta a Vanessa (+100)</button>`}</div>`;
+      ${m.enviada ? '<p class="fine enviada">✓ Enviada a Vanessa</p>' : `<button class="link" type="button" data-enviar>¿No te sirvió? Enviar mi pregunta a Vanessa<span class="pts"> (+100)</span></button>`}</div>`;
     li.querySelector('[data-enviar]')?.addEventListener('click', () => void enviarAVanessa(m, li));
     return li;
   };

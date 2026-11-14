@@ -19,6 +19,7 @@ export default defineConfig({
         home: resolve(dir, 'index.html'),
         genui: resolve(dir, 'genui/index.html'),
         agentes: resolve(dir, 'agentes/index.html'),
+        'agentes-breve': resolve(dir, 'agentes-breve/index.html'),
         presenter: resolve(dir, 'presenter/index.html'),
         live: resolve(dir, 'live/index.html'),
       },
