@@ -423,6 +423,8 @@ section[data-deck-active] .podium .step:nth-child(1) { animation-delay: 300ms; }
 .ratio-row button small { font: 400 10.5px var(--mono); color: #666; }
 .presenter-badge { position: fixed; top: 16px; right: 66px; z-index: 2147483000; font: 600 13px var(--mono); padding: 6px 10px; border-radius: 999px; background: #c5221f; color: #fff; }
 .presenter-badge[hidden] { display: none; }
+.presenter-badge.sin-red { background: #b06000; }
+.presenter-badge.sin-red::after { content: ' · SIN CONEXIÓN, reintentando'; }
 .broadcast-warn { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 2147483000; max-width: calc(100vw - 140px); padding: 8px 14px; border-radius: 999px; border: 2px solid #1e1e1e; background: #ffd427; color: #1e1e1e; font: 500 14px var(--sans); cursor: pointer; }
 .broadcast-warn[hidden] { display: none; }
 .qa-panel { position: fixed; top: 70px; right: 16px; z-index: 60; width: min(420px, calc(100vw - 32px)); max-height: calc(100dvh - 100px); display: grid; grid-template-rows: auto 1fr auto; background: #fff; color: #1e1e1e; border: 2px solid #1e1e1e; border-radius: 20px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25); font-family: var(--sans); overflow: hidden; }

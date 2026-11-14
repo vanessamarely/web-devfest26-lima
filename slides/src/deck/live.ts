@@ -110,14 +110,33 @@ export async function initLive(stage: DeckStage, sections: HTMLElement[]) {
   };
 
   // ── Publicar el slide actual (solo la presentadora) ───────────────────
-  const send = (p: Promise<unknown>) =>
-    p.catch((err) => {
-      console.warn('[live] no se pudo publicar:', err);
-      if (rt.mode === 'firebase') {
-        presenter = false;
-        syncPresenterUi();
-      }
-    });
+  // Si una publicación tarda más de 3 s (red del lugar), la etiqueta lo dice: "SIN CONEXIÓN · reintentando".
+  // Firestore guarda la escritura y la envía sola al volver la red; los celulares se ponen al día.
+  let pendientes = 0;
+  let avisoRed = 0;
+  const marcarRed = () => {
+    clearTimeout(avisoRed);
+    if (pendientes > 0) avisoRed = window.setTimeout(() => badge.classList.toggle('sin-red', pendientes > 0), 3000);
+    else badge.classList.remove('sin-red');
+  };
+  const send = (p: Promise<unknown>) => {
+    pendientes++;
+    marcarRed();
+    return p
+      .finally(() => {
+        pendientes--;
+        marcarRed();
+      })
+      .catch((err) => {
+        console.warn('[live] no se pudo publicar:', err);
+        // Solo si Firebase dice que no tienes permiso (sesión de GitHub vencida) dejas de ser presentadora;
+        // un error de red no te saca: el pulso vuelve a publicar.
+        if (rt.mode === 'firebase' && /permission|unauthenticated/i.test(String((err as { code?: string })?.code ?? err))) {
+          presenter = false;
+          syncPresenterUi();
+        }
+      });
+  };
   let lastIndex = -1;
   const active = () => sections[Math.max(0, lastIndex)];
   function publish(index: number) {
@@ -138,6 +157,13 @@ export async function initLive(stage: DeckStage, sections: HTMLElement[]) {
     }
   }
   stage.addEventListener('slidechange', (e) => publish((e as CustomEvent).detail.index));
+  // Pulso: cada 15 s se vuelve a publicar el slide actual. Si un celular perdió un cambio, se corrige solo.
+  setInterval(() => {
+    if (!presenter || lastIndex < 0 || document.hidden) return;
+    const s = sections[lastIndex];
+    const c = SLIDE_BY_ID.get(s.dataset.id ?? '');
+    void send(rt.patchSlide({ index: lastIndex, total: sections.length, id: s.dataset.id ?? '', label: s.dataset.label ?? '', kind: c?.kind ?? 'content', qid: (s.dataset.q as QuestionId | undefined) ?? null }));
+  }, 15000);
   {
     const first = sections.findIndex((s) => s.hasAttribute('data-deck-active'));
     publish(first >= 0 ? first : 0);

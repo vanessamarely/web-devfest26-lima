@@ -1,5 +1,5 @@
 import { GithubAuthProvider, getAuth, linkWithPopup, signInAnonymously, signInWithCredential, signInWithPopup } from 'firebase/auth';
-import { Timestamp, addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
+import { Timestamp, addDoc, collection, deleteDoc, doc, getDoc, getDocFromServer, getDocs, type DocumentSnapshot, getFirestore, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import { OTHER_SESSION_ID, PRESENTER_GITHUB_ID, SESSION_ID } from './config';
 import { getFirebaseApp } from './firebase';
 import { nameKey } from './names';
@@ -40,13 +40,26 @@ export async function createFirebaseRealtime(): Promise<Realtime> {
       if (!cur?.earlyUntil) await setDoc(session, { earlyUntil: serverTimestamp() }, { merge: true });
     },
     onSlide(cb) {
-      return onSnapshot(session, (snap) => {
+      const entregar = (snap: DocumentSnapshot) => {
         const data = (snap.data({ serverTimestamps: 'estimate' }) ?? {}) as Record<string, unknown>;
         const openedAt: SlideState['openedAt'] = {};
         const raw = (data.openedAt ?? {}) as Record<string, unknown>;
         for (const q of QUESTION_IDS) if (raw[q]) openedAt[q] = ms(raw[q]);
         cb({ ...emptySlide(), ...(data as Partial<SlideState>), openedAt, earlyUntil: ms(data.earlyUntil) ?? null });
-      });
+      };
+      const off = onSnapshot(session, entregar);
+      // Al desbloquear el celular o volver a la pestaña, pedimos el slide actual al servidor:
+      // en iOS y Android la escucha en vivo a veces tarda en reconectarse después de dormir.
+      const alVolver = () => {
+        if (document.visibilityState === 'visible') getDocFromServer(session).then(entregar).catch(() => undefined);
+      };
+      document.addEventListener('visibilitychange', alVolver);
+      addEventListener('online', alVolver);
+      return () => {
+        off();
+        document.removeEventListener('visibilitychange', alVolver);
+        removeEventListener('online', alVolver);
+      };
     },
 
     async reserveName(name) {
