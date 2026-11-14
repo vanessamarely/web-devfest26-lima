@@ -269,20 +269,27 @@ function renderJoin(screen: HTMLElement, msg = '') {
       const btn = e.currentTarget as HTMLButtonElement;
       const pick = screen.querySelector<HTMLElement>('[aria-checked="true"]')?.dataset.name ?? options[0];
       btn.disabled = true;
-      $('[data-join-msg]', screen).textContent = 'Reservando tu apodo…';
-      try {
-        // Reserva atómica: si alguien lo tomó un segundo antes, recibes el mismo con numeración.
-        name = await claimUniqueName(pick, (n) => rt.reserveName(n));
-        store.set('name', name);
-        if (!avatar.name) avatar.name = name.slice(0, 18);
-        await rt.join(name);
-        renderMe();
-        render();
-      } catch (err) {
-        console.error('[live] entrar', err);
-        btn.disabled = false;
-        $('[data-join-msg]', screen).textContent = 'No se pudo entrar. Revisa tu conexión e inténtalo de nuevo.';
-      }
+      // Entrar es inmediato: con un wifi de evento lento, nadie se queda esperando para ver la charla.
+      // El apodo se reserva en segundo plano; si alguien lo tomó un segundo antes, recibes el mismo con número.
+      name = pick;
+      store.set('name', name);
+      if (!avatar.name) avatar.name = name.slice(0, 18);
+      renderMe();
+      render();
+      void (async () => {
+        try {
+          const final = await claimUniqueName(pick, (n) => rt.reserveName(n));
+          if (final !== name) {
+            if (avatar.name === name.slice(0, 18)) avatar.name = final.slice(0, 18);
+            name = final;
+            store.set('name', final);
+            renderMe();
+          }
+          await rt.join(name!);
+        } catch (err) {
+          console.error('[live] reservar apodo', err); // la charla se sigue viendo igual
+        }
+      })();
     });
   };
   const load = async () => {

@@ -46,4 +46,12 @@ describe('reacciones con efecto', () => {
     expect(fiesta).toBe(true);
     expect(document.querySelector('.burst-fiesta')).not.toBeNull();
   });
+
+  it('una persona que reacciona varias veces aparece con su avatar (uno a la vez)', () => {
+    document.body.innerHTML = '';
+    const b = createBursts(() => 50);
+    expect(b.cameo('heart', null, 'Brisa Limeña')).toBe(true);
+    expect(document.querySelector('.cameo-heart .cameo-globo')?.textContent).toBe('¡A Brisa Limeña le encantó! ❤️');
+    expect(b.cameo('fire', null, 'Otra persona')).toBe(false); // ya hay uno en pantalla
+  });
 });

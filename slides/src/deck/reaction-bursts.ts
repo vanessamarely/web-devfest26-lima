@@ -4,6 +4,8 @@
 //  ❤️ me gusta     → el sol de Lima sale y sonríe
 // Y si la sala sigue (o salen los tres efectos seguidos): ¡Fiesta en la Costa Verde! Avatares de
 // la sala bailan con pañuelo y un surfista cruza sobre una ola.
+// Y si UNA persona reacciona varias veces seguidas, su propio avatar aparece en la pantalla:
+// 🔥 salta con llamas · ❤️ sube entre corazones · 🤯 gira con estrellas, con su nombre en un globo.
 // No cuesta tiempo de charla: se dispara solo. Umbral proporcional a la sala y un enfriamiento
 // por efecto para no saturar. Respeta prefers-reduced-motion.
 import { avatarSVG, type AvatarOptions } from '../shared/avatar';
@@ -58,6 +60,24 @@ export function createBursts(getPlayers: () => number, getAvatars: () => AvatarO
     setTimeout(() => el.remove(), reduced() ? 2500 : 5200);
   }
 
+  /** El avatar de UNA persona que reaccionó varias veces seguidas, haciendo algo según la reacción. */
+  let cameoHasta = 0;
+  function cameo(kind: Reaction, opts: AvatarOptions | null, nombre: string): boolean {
+    const ahora = Date.now();
+    if (ahora < cameoHasta || document.querySelector('.burst-fiesta')) return false; // uno a la vez
+    cameoHasta = ahora + 4200;
+    const extras = { fire: ['🔥', '🔥', '🔥'], heart: ['❤️', '💛', '❤️'], mind: ['✨', '🤯', '✨'] }[kind as 'fire' | 'heart' | 'mind'] ?? ['✨'];
+    const texto = { fire: `¡${nombre} se emocionó! 🔥`, heart: `¡A ${nombre} le encantó! ❤️`, mind: `¡Wow, ${nombre}! 🤯` }[kind as 'fire' | 'heart' | 'mind'] ?? nombre;
+    const el = document.createElement('div');
+    el.className = `burst cameo cameo-${kind}`;
+    el.setAttribute('role', 'status');
+    el.innerHTML = `<div class="cameo-fig">${avatarSVG(opts ?? AVATARES_FIESTA[Math.floor(Math.random() * AVATARES_FIESTA.length)], nombre)}${extras.map((x, i) => `<i style="--i:${i}">${x}</i>`).join('')}</div><p class="cameo-globo"></p>`;
+    el.querySelector('.cameo-globo')!.textContent = texto;
+    document.body.append(el);
+    setTimeout(() => el.remove(), reduced() ? 2500 : 4200);
+    return true;
+  }
+
   /** ¡Fiesta en la Costa Verde! Avatares de la sala bailan con pañuelo y un surfista cruza la ola. */
   function fiesta() {
     document.querySelectorAll('.burst:not(.burst-fiesta)').forEach((b) => b.remove());
@@ -106,5 +126,6 @@ export function createBursts(getPlayers: () => number, getAvatars: () => AvatarO
     /** Para ensayar desde la consola: window.deckBurst('fire') · window.deckFiesta() */
     show,
     fiesta,
+    cameo,
   };
 }

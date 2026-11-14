@@ -549,9 +549,27 @@ export async function initLive(stage: DeckStage, sections: HTMLElement[]) {
     () => players.length,
     () => avatars.filter((a) => !a.hidden).map((a) => a.opts),
   );
-  Object.assign(window, { deckBurst: (k: Reaction) => bursts.show(k), deckFiesta: () => bursts.fiesta() });
+  Object.assign(window, { deckBurst: (k: Reaction) => bursts.show(k), deckFiesta: () => bursts.fiesta(), deckCameo: (k: Reaction = 'fire') => bursts.cameo(k, avatars[0]?.opts ?? null, avatars[0]?.name ?? 'Brisa Limeña') });
+  // Una persona que reacciona 5 veces en 8 s: su avatar aparece en pantalla (una vez por minuto por persona).
+  const toques = new Map<string, number[]>();
+  const ultimoCameo = new Map<string, number>();
+  const quizasCameo = (r: Reaction, uid: string) => {
+    if (r === 'ask') return;
+    const ahora = Date.now();
+    const lista = (toques.get(`${uid}:${r}`) ?? []).filter((t) => ahora - t < 8000);
+    lista.push(ahora);
+    toques.set(`${uid}:${r}`, lista);
+    if (lista.length < 5 || ahora - (ultimoCameo.get(uid) ?? 0) < 60000) return;
+    const av = avatars.find((a) => a.id === uid && !a.hidden);
+    const nombre = players.find((p) => p.id === uid)?.name ?? av?.name ?? 'Alguien';
+    if (bursts.cameo(r, av?.opts ?? null, nombre)) {
+      ultimoCameo.set(uid, ahora);
+      toques.delete(`${uid}:${r}`);
+    }
+  };
   rt.onReaction((r, uid) => {
     bursts.add(r);
+    if (uid) quizasCameo(r, uid);
     if (uid && r !== 'ask' && (part.reactions[uid] ?? 0) < 10) {
       part.reactions[uid] = (part.reactions[uid] ?? 0) + 1;
       savePart();
