@@ -44,7 +44,7 @@ function aplicar(d: { id: string; precio: number }) {
 ```ts
 boton.addEventListener('click', () => {
   boton.setAttribute('aria-busy', 'true');           // same frame as the click
-  worker.postMessage([...libreta.values()]);
+  worker.postMessage([...datos.values()]);
 });
 worker.onmessage = ({ data: ids }) => reordenar(ids); // moves nodes
 ```

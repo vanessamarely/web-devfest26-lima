@@ -5,7 +5,7 @@ description: Audit and fix the performance of generative UI (interfaces an LLM s
 
 # Fast generative UI: 4 rules
 
-From the talk *Web performance en la era de la UI generativa* (DevFest Lima 2026). Metaphor: **building an apartment while the architect dictates the plan over the phone**: the browser builds live, with people already inside.
+From the talk *Web performance en la era de la UI generativa* (DevFest Lima 2026). Metaphor: **building a house while the architect dictates the plan over the phone**: the browser builds live, with people already inside.
 
 ## Workflow
 1. **Measure first** (never optimize blind): Chrome DevTools → Performance, CPU 4× slowdown, record one full AI response, stop. Read Insights: *Layout shift culprits*, *INP breakdown*, long animation frames. If Chrome DevTools for agents (chrome-devtools-mcp) is available, use `performance_start_trace` / `performance_stop_trace` / `performance_analyze_insight`.
